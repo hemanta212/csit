@@ -1,0 +1,43 @@
+* CPP
+** Class: Defining methods outside the classes
+*** Includes
+#+begin_src c
+  #include <iostream>
+
+  using namespace std;
+#+end_src
+
+*** Addition class definition
+#+begin_src c
+  class Addition{
+  private:
+    int a, b, sum;
+  public:
+    void get(int x, int y);
+    void process();
+    void print();
+  };
+
+  void Addition::get(int x, int y){
+    a = x;
+    b = y;
+  }
+
+  void Addition::process(){
+    sum = a+b;
+  }
+
+  void Addition::print(){
+    cout << "Sum of the " << a << " and " << b << " is " << sum << endl;
+  }
+#+end_src
+*** Main loop
+#+begin_src c
+  int main(){
+    Addition A;
+    A.get(10, 20);
+    A.process();
+    A.print();
+    return 0;
+    }
+#+end_src
