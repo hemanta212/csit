@@ -1,0 +1,20 @@
+[
+    {
+        "arguments": [
+            "g++",
+            "-c",
+            "-ggdb3",
+            "-O0",
+            "-Wall",
+            "-Werror",
+            "-Wextra",
+            "-Wshadow",
+            "-pedantic-errors",
+            "-o",
+            "temp",
+            "temp.cpp"
+        ],
+        "directory": "/home/pykancha/dev/csit",
+        "file": "temp.cpp"
+    }
+]
