@@ -1,0 +1,57 @@
+# Matrix Prod
+# spawn ./temp
+# expect ":: Input 1st 3x3 matrix A:"
+# send "1 2 3\n4 5 6\n7 8 9\n"
+# expect ":: Input 2nd 3x3 matrix B:"
+# send "7 8 9\n4 5 6\n1 2 3\n"
+# expect eof
+
+# Array Read N
+#spawn ./temp
+#expect "Input 10 Numbers: "
+#send "11 13 15 17 19\n"
+# send "7 11 210 13 311 1 0 3 5 2\n"
+#expect eof
+
+spawn ./temp
+expect "Input Name, Phone, Mail, Mail_addr \[1/20\]:"
+send "Zeju 9823448254 a@a.com Raniban,kathmandu\n"
+expect "Input Name, Phone, Mail, Mail_addr \[2/20\]:"
+send "aju +9779823448254 a@a.com Raniban,kathmandu\n"
+expect "Input Name, Phone, Mail, Mail_addr \[3/20\]:"
+send "aju 448254 a@a.com Balaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[4/20\]:"
+send "O 448254 sharma@hemanta.com Balaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[5/20\]:"
+send "ajk 448254 sharma@hemanta.com Blaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[6/20\]:"
+send "ajj 448254 sharma@hemanta.com Blaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[7/20\]:"
+send "Aij 448254 sharma@hemanta.com Blaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[8/20\]:"
+send "Zij 448254 sharma@hemanta.com Blaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[9/20\]:"
+send "Zeju 9823448254 a@a.com Raniban,kathmandu\n"
+expect "Input Name, Phone, Mail, Mail_addr \[10/20\]:"
+send "aju +9779823448254 a@a.com Raniban,kathmandu\n"
+expect "Input Name, Phone, Mail, Mail_addr \[11/20\]:"
+send "aju 448254 a@a.com Balaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[12/20\]:"
+send "O 448254 sharma@hemanta.com Balaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[13/20\]:"
+send "ajk 448254 sharma@hemanta.com Blaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[14/20\]:"
+send "ajj 448254 sharma@hemanta.com Blaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[15/20\]:"
+send "Aij 448254 sharma@hemanta.com Blaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[16/20\]:"
+send "Zij 448254 sharma@hemanta.com Blaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[17/20\]:"
+send "Zeju 9823448254 a@a.com Raniban,kathmandu\n"
+expect "Input Name, Phone, Mail, Mail_addr \[18/20\]:"
+send "aju +9779823448254 a@a.com Raniban,kathmandu\n"
+expect "Input Name, Phone, Mail, Mail_addr \[19/20\]:"
+send "aju 448254 a@a.com Balaju\n"
+expect "Input Name, Phone, Mail, Mail_addr \[20/20\]:"
+send "O 448254 sharma@hemanta.com Balaju\n"
+expect eof
