@@ -1,13 +1,15 @@
-* CPP
+* C++
+:TOC:
+
 ** Class: Defining methods outside the classes
-*** Includes
+**** Includes
 #+begin_src c
   #include <iostream>
 
   using namespace std;
 #+end_src
 
-*** Addition class definition
+**** Addition class definition
 #+begin_src c
   class Addition{
   private:
@@ -31,7 +33,7 @@
     cout << "Sum of the " << a << " and " << b << " is " << sum << endl;
   }
 #+end_src
-*** Main loop
+**** Main loop
 #+begin_src c
   int main(){
     Addition A;
@@ -41,3 +43,137 @@
     return 0;
     }
 #+end_src
+** Pointer
+An integer storing memory address
+
+Example to show types dont matter, just for compiler and ours sake.
+#+begin_src C++
+  int main()
+  {
+    void* invalid_ptr = 0;
+    void* nvalid_ptr = NULL; // same as 0
+    void* invlid_ptr = nullptr;
+
+    // getting a pointer
+    int var = 8;
+    void* ptr = &var;
+    return 0;
+  }
+#+end_src
+
+** References
+Pretty much the same under hood. Syntactic sugar over pointer
+
+pointer are a entirely new variable (exists in memory thus has its own addr). This variable just happen to store 8 byte (integer) representing other addr.
+
+Refrences only can be made on top of existing var. They are not present in the memory and take no space. Its impossible to create a reference to NULL.
+
+
+// ampersand (&) beside a variable is a "addresof" operator
+#+begin_src C++
+  int* b = &a;
+#+end_src
+
+// ampersand as part of type is a reference
+#+begin_src C++
+  int& b = a;
+#+end_src
+
+Reference is not really variable, exists only in source code. It is an alias.
+This can be somewhat linked to this code snippet
+#+begin_src C++
+  int a = 3;
+  int b = a;
+  int& c = a;
+
+  std::cout << "A: "<< &a << "\nB: " << &b << "\nC: " << &c;
+#+end_src
+
+In python the first two line would have produced the desired output.
+#+begin_src python
+  a = 3
+  b = a
+  print("A:", hex(id(a)), "\nB: ", hex(id(b)))
+#+end_src
+
+Well in C++ things are different and you have to use Reference
+
+Note: This is where the similarity in Python ends, while python just aliases the variable to avoid creating objects in memory. C++ does much more than that
+
+
+Emulating pointers:
+
+#+begin_src C++
+  void increment_int(int* a){
+  // Note: (*a)++ and not *a++ dereference then increment no reference an incremented address
+     (*a)++;
+  }
+
+  int main(){
+    int a = 10;
+    int* b = &a;
+    increment_int(b);
+    std::cout << "A: " << a;
+    return 0;
+  }
+#+end_src
+
+This is standard syntax used when trying to emulate a pass by reference in C. You dont want to pass the actual value 10 but you want to be able to modify it. Passing address of 10 and putting anything in that address is the way
+
+#+begin_src C++
+  void increment_int(int& i){
+    i++;
+  }
+
+  int main(){
+    int a = 10;
+    increment_int(a);
+    std::cout << "A: " << a;
+    return 0;
+  }
+#+end_src
+
+
+Losing all that cruft looks nice and it makes perfect sense for a compiler either ways.
+The real cost however is Magic. You are no longer passing the the value 10 to function tho it may look like it. The compiler looks at both the function call and function definition and actually makes the translation.
+
+#+begin_src C++
+  // func def
+  void call_func(int num){}
+
+  // call to function
+  int a = 10;
+  call_func(a) // --> call_func(10) --> num = 10
+
+  void call_func2(int& num){}
+  int a = 10;
+  call_func(a) // --> call_func2(&a)
+#+end_src
+
+SUMMARY
+
+Pointers do too much.
+
+- References acts as immutable pointer that are automatically dereferenced
+- Subset of pointer features to use reference in substitute
+
+  - passing large objects to function arguments
+  - Passing things to function for the function to modify the underlying value
+
+
+DIFFRENCE WITH POINTERS (from bjarne c++ programming priciple and practice book)
+
+- Assignment to a pointer changes the pointer’s value (not the pointed-to value).
+
+•	To get a pointer you generally need to use new or &.
+
+• To access an object pointed to by a pointer you	use * or [].
+
+•	Assignment to a reference changes the value of the object referred to (not
+the reference itself).
+
+•	You cannot make a reference refer to a different object after initialization.
+
+•	Assignment of references does deep copy (assigns to the	referred-to object); assignment	of pointers does not (assigns to the pointer object itself).
+
+•	Beware of null pointers.
