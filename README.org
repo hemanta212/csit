@@ -1,5 +1,12 @@
+# Created 2022-01-21 Fri 22:57
+#+title: Org Tracker
+#+author: DESKTOP-THDHQPT
 * C++
-:TOC:
+:CONTENTS:
+- [[#class-defining-methods-outside-the-classes][Class: Defining methods outside the classes]]
+- [[#pointer][Pointer]]
+- [[#references][References]]
+:END:
 
 ** Class: Defining methods outside the classes
 **** Includes
@@ -89,12 +96,23 @@ This can be somewhat linked to this code snippet
   std::cout << "A: "<< &a << "\nB: " << &b << "\nC: " << &c;
 #+end_src
 
+#+results:
+: A: 0x7ffdfae31758
+: B: 0x7ffdfae3175c
+: C: 0x7ffdfae31758
+
+
 In python the first two line would have produced the desired output.
 #+begin_src python
   a = 3
   b = a
   print("A:", hex(id(a)), "\nB: ", hex(id(b)))
 #+end_src
+
+#+results:
+: A: 0x955e80
+: B:  0x955e80
+
 
 Well in C++ things are different and you have to use Reference
 
@@ -118,6 +136,10 @@ Emulating pointers:
   }
 #+end_src
 
+#+results:
+: A: 11
+
+
 This is standard syntax used when trying to emulate a pass by reference in C. You dont want to pass the actual value 10 but you want to be able to modify it. Passing address of 10 and putting anything in that address is the way
 
 #+begin_src C++
@@ -132,6 +154,10 @@ This is standard syntax used when trying to emulate a pass by reference in C. Yo
     return 0;
   }
 #+end_src
+
+#+results:
+: A: 11
+
 
 
 Losing all that cruft looks nice and it makes perfect sense for a compiler either ways.
