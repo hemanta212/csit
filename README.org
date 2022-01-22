@@ -71,12 +71,12 @@ In python the first two line would have produced the desired output.
 #+begin_src python :results output :exports both
   a = 3
   b = a
-  print("A:", hex(id(a)), "\nB: ", hex(id(b)))
+  print("A:", hex(id(a)), "\nB:", hex(id(b)))
 #+end_src
 
 #+RESULTS:
 : A: 0x955e80
-: B:  0x955e80
+: B: 0x955e80
 
 Well in C++ things are different and you have to use Reference
 
@@ -101,7 +101,7 @@ Emulating pointers:
 #+end_src
 
 #+RESULTS:
-: A: 10
+: A: 11
 
 This is standard syntax used when trying to emulate a pass by reference in C. You dont want to pass the actual value 10 but you want to be able to modify it. Passing address of 10 and putting anything in that address is the way
 
@@ -199,23 +199,26 @@ This is the difference we really care about. Since a whole culture of programmer
  Again no difference to the compiler just semantic notion and popular convention that's it.
 
 *** Class Example: Console Log class
+source file: [[file:class_log_example.cpp]]
+
 **** Designing API
 
 #+name: Main
 #+begin_src C++
   int main(){
       Log log;
+
       log.Info("Setting level to Error");
       log.SetLevel(log.LogLevelError);
-      log.Warn("Oh no warning");
-      log.Error("Oh no error");
+      log.Warn("This is warning!");
+      log.Error("This is error!!");
 
 
       log.SetLevel(log.LogLevelInfo);
       log.Info("Setting level to Info");
-      log.Error("Oh no error");
-      log.Warn("Oh no warning");
-      log.Info("Oh info");
+      log.Error("This is error!!");
+      log.Warn("This is warning!");
+      log.Info("This is info.");
 
       return 0;
     }
@@ -259,7 +262,7 @@ This is the difference we really care about. Since a whole culture of programmer
 #+end_src
 
 **** Combine
-#+begin_src C++ :main no :noweb yes :exports both
+#+begin_src C++ :main no :noweb yes :exports both :tangle ~/dev/csit/class_log_example.cpp :results output
   <<Include>>
 
   <<LogClass>>
@@ -269,9 +272,9 @@ This is the difference we really care about. Since a whole culture of programmer
 #+end_src
 
 #+RESULTS:
-| [Info]:  | Setting | level | to      | Error |
-| [Error]: | Oh      | no    | error   |       |
-| [Info]:  | Setting | level | to      | Info  |
-| [Error]: | Oh      | no    | error   |       |
-| [Warn]:  | Oh      | no    | warning |       |
-| [Info]:  | Oh      | info  |         |       |
+: [Info]: Setting level to Error
+: [Error]: This is error!!
+: [Info]: Setting level to Info
+: [Error]: This is error!!
+: [Warn]: This is warning!
+: [Info]: This is info.
