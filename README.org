@@ -1,60 +1,26 @@
-# Created 2022-01-21 Fri 22:57
-#+title: Org Tracker
-#+author: DESKTOP-THDHQPT
-* C++
+
+#+DRAWERS: HIDDEN STATE
+#+PROPERTY: header-args: lang           :varname value
+#+PROPERTY: header-args:C++             :results output  :flags -std=c++17 -Wall --pedantic -Werror
+
+** C++
+*** Table of contents
+:PROPERTIES:
+:TOC:      :include siblings :depth 1
+:END:
 :CONTENTS:
 - [[#class-defining-methods-outside-the-classes][Class: Defining methods outside the classes]]
 - [[#pointer][Pointer]]
 - [[#references][References]]
+- [[#class-vs-structs][Class vs Structs]]
+- [[#class-example-console-log-class][Class Example: Console Log class]]
 :END:
 
-** Class: Defining methods outside the classes
-**** Includes
-#+begin_src c
-  #include <iostream>
-
-  using namespace std;
-#+end_src
-
-**** Addition class definition
-#+begin_src c
-  class Addition{
-  private:
-    int a, b, sum;
-  public:
-    void get(int x, int y);
-    void process();
-    void print();
-  };
-
-  void Addition::get(int x, int y){
-    a = x;
-    b = y;
-  }
-
-  void Addition::process(){
-    sum = a+b;
-  }
-
-  void Addition::print(){
-    cout << "Sum of the " << a << " and " << b << " is " << sum << endl;
-  }
-#+end_src
-**** Main loop
-#+begin_src c
-  int main(){
-    Addition A;
-    A.get(10, 20);
-    A.process();
-    A.print();
-    return 0;
-    }
-#+end_src
-** Pointer
+*** Pointer
 An integer storing memory address
 
 Example to show types dont matter, just for compiler and ours sake.
-#+begin_src C++
+#+begin_src C++ :includes <iostream> :main no
   int main()
   {
     void* invalid_ptr = 0;
@@ -68,7 +34,7 @@ Example to show types dont matter, just for compiler and ours sake.
   }
 #+end_src
 
-** References
+*** References
 Pretty much the same under hood. Syntactic sugar over pointer
 
 pointer are a entirely new variable (exists in memory thus has its own addr). This variable just happen to store 8 byte (integer) representing other addr.
@@ -88,7 +54,7 @@ Refrences only can be made on top of existing var. They are not present in the m
 
 Reference is not really variable, exists only in source code. It is an alias.
 This can be somewhat linked to this code snippet
-#+begin_src C++
+#+begin_src C++ :results output :includes <iostream> :exports both
   int a = 3;
   int b = a;
   int& c = a;
@@ -96,23 +62,21 @@ This can be somewhat linked to this code snippet
   std::cout << "A: "<< &a << "\nB: " << &b << "\nC: " << &c;
 #+end_src
 
-#+results:
-: A: 0x7ffdfae31758
-: B: 0x7ffdfae3175c
-: C: 0x7ffdfae31758
-
+#+RESULTS:
+: A: 0x7ffc0f9125d8
+: B: 0x7ffc0f9125dc
+: C: 0x7ffc0f9125d8
 
 In python the first two line would have produced the desired output.
-#+begin_src python
+#+begin_src python :results output :exports both
   a = 3
   b = a
   print("A:", hex(id(a)), "\nB: ", hex(id(b)))
 #+end_src
 
-#+results:
+#+RESULTS:
 : A: 0x955e80
 : B:  0x955e80
-
 
 Well in C++ things are different and you have to use Reference
 
@@ -121,7 +85,7 @@ Note: This is where the similarity in Python ends, while python just aliases the
 
 Emulating pointers:
 
-#+begin_src C++
+#+begin_src C++ :includes <iostream> :main no :results output :exports both
   void increment_int(int* a){
   // Note: (*a)++ and not *a++ dereference then increment no reference an incremented address
      (*a)++;
@@ -136,13 +100,12 @@ Emulating pointers:
   }
 #+end_src
 
-#+results:
-: A: 11
-
+#+RESULTS:
+: A: 10
 
 This is standard syntax used when trying to emulate a pass by reference in C. You dont want to pass the actual value 10 but you want to be able to modify it. Passing address of 10 and putting anything in that address is the way
 
-#+begin_src C++
+#+begin_src C++ :main no :includes <iostream> :results output :exports both
   void increment_int(int& i){
     i++;
   }
@@ -155,9 +118,8 @@ This is standard syntax used when trying to emulate a pass by reference in C. Yo
   }
 #+end_src
 
-#+results:
+#+RESULTS:
 : A: 11
-
 
 
 Losing all that cruft looks nice and it makes perfect sense for a compiler either ways.
@@ -189,17 +151,127 @@ Pointers do too much.
 
 DIFFRENCE WITH POINTERS (from bjarne c++ programming priciple and practice book)
 
-- Assignment to a pointer changes the pointer’s value (not the pointed-to value).
+- Assignment to a pointer changes the pointer's value (not the pointed-to value).
 
-•	To get a pointer you generally need to use new or &.
+- To get a pointer you generally need to use new or &.
 
-• To access an object pointed to by a pointer you	use * or [].
+- To access an object pointed to by a pointer you use * or [].
 
-•	Assignment to a reference changes the value of the object referred to (not
+- Assignment to a reference changes the value of the object referred to (not
 the reference itself).
 
-•	You cannot make a reference refer to a different object after initialization.
+- You cannot make a reference refer to a different object after initialization.
 
-•	Assignment of references does deep copy (assigns to the	referred-to object); assignment	of pointers does not (assigns to the pointer object itself).
+- Assignment of references does deep copy (assigns to the referred-to object); assignment of pointers does not (assigns to the pointer object itself).
 
-•	Beware of null pointers.
+- Beware of null pointers.
+
+*** Class vs Structs
+Structs and class in C++ have very little difference. Struct is only for backward compatible reason.
+
+In class the fields and methods declared inside are private unless explicitly made public using the said keyword.
+So yeah, the difference is just the private: keyword.
+
+You can go to a C struct replace the struct word with class and add public keyword and boom its a valid c++ and you can replace any valid C++ class with struct and adjust the private keyword and there you go a valid c++ code.
+#+begin_src C++
+  class Test{
+    int priv_a, priv_b;
+    void priv_func();
+    }
+
+  struct Test{
+    private:
+      int priv_a, priv_b;
+      void priv_func();
+}
+#+end_src
+Both are equivalent. You can literally do a whole class hierarchy and inheritance just using struct heck you can make a struct inherit from class.
+
+So all in all it seems like Bjarne designed classes in C++ then just renamed it to struct and made member public by default thats it
+
+**** Semantic Difference
+This is the difference we really care about. Since a whole culture of programmers evolved using struct in C. There are some preconceived roles of structs and class.
+
+- Using class just for storing 2-3 variables kinda seems odd to some.
+- So for simple non-complicated stuff having few member and trivial little functions use struct
+- For more complicated use, having tons of members, using a constructor, non trivial methods, inheritance and hierarchy use class, structs will just feel out of place
+
+ Again no difference to the compiler just semantic notion and popular convention that's it.
+
+*** Class Example: Console Log class
+**** Designing API
+
+#+name: Main
+#+begin_src C++
+  int main(){
+      Log log;
+      log.Info("Setting level to Error");
+      log.SetLevel(log.LogLevelError);
+      log.Warn("Oh no warning");
+      log.Error("Oh no error");
+
+
+      log.SetLevel(log.LogLevelInfo);
+      log.Info("Setting level to Info");
+      log.Error("Oh no error");
+      log.Warn("Oh no warning");
+      log.Info("Oh info");
+
+      return 0;
+    }
+#+end_src
+
+**** Make class
+#+name: LogClass
+#+begin_src C++
+  class Log{
+    public:
+      const int LogLevelError = 0;
+      const int LogLevelWarning = 1;
+      const int LogLevelInfo = 2;
+
+    private:
+      int m_logLevel = 2;
+
+    public:
+      void SetLevel(int level){
+        m_logLevel = level;
+     }
+      void Error(const char* message){
+        if(m_logLevel >= LogLevelError)
+         std::cout << "[Error]: " << message << std::endl;
+      }
+      void Warn(const char* message){
+        if(m_logLevel >= LogLevelWarning)
+         std::cout << "[Warn]: " << message << std::endl;
+      }
+      void Info(const char* message){
+        if(m_logLevel >= LogLevelInfo)
+         std::cout << "[Info]: " << message << std::endl;
+      }
+    };
+#+end_src
+
+**** Includes
+#+name: Include
+#+begin_src C++
+  #include <iostream>
+#+end_src
+
+**** Combine
+#+begin_src C++ :main no :noweb yes :exports both
+  <<Include>>
+
+  <<LogClass>>
+
+  <<Main>>
+
+#+end_src
+
+#+RESULTS:
+| [Info]:  | Setting | level | to      | Error |
+| [Error]: | Oh      | no    | error   |       |
+| [Info]:  | Setting | level | to      | Info  |
+| [Error]: | Oh      | no    | error   |       |
+| [Warn]:  | Oh      | no    | warning |       |
+| [Info]:  | Oh      | info  |         |       |
