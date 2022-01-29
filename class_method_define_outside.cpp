@@ -1,28 +1,31 @@
-// Wap to find the sum of two numbers by defining memeber function outside the
-// class
 #include <iostream>
-using namespace std;
 
-class sum {
+class Addition{
 private:
   int a, b, sum;
-
 public:
-  void getdata() {
-    cout << "Enter the value of a and b:";
-    cin >> a >> b;
-  }
-  void display() { cout << " The sum of a and b is: " << sum; }
+  void get(int x, int y);
   void process();
+  void print();
 };
 
-// Add process function to sum class
-void sum::process() { sum = a + b; }
-
-int main() {
-  sum s;
-  s.getdata();
-  s.process();
-  s.display();
-  return 0;
+void Addition::get(int x, int y){
+  a = x;
+  b = y;
 }
+
+void Addition::process(){
+  sum = a+b;
+}
+
+void Addition::print(){
+  std::cout << "Sum of the " << a << " and " << b << " is " << sum << std::endl;
+}
+
+int main(){
+  Addition A;
+  A.get(10, 20);
+  A.process();
+  A.print();
+  return 0;
+  }

@@ -4,17 +4,93 @@
 #+PROPERTY: header-args:C++             :results output  :flags -std=c++17 -Wall --pedantic -Werror
 
 ** C++
+
 *** Table of contents
 :PROPERTIES:
 :TOC:      :include siblings :depth 1
 :END:
 :CONTENTS:
-- [[#class-defining-methods-outside-the-classes][Class: Defining methods outside the classes]]
+- [[#notes-about-compiling-and-linking][Notes about Compiling and linking]]
 - [[#pointer][Pointer]]
 - [[#references][References]]
 - [[#class-vs-structs][Class vs Structs]]
 - [[#class-example-console-log-class][Class Example: Console Log class]]
+- [[#class-defining-methods-outside-the-classes][Class: Defining methods outside the classes]]
 :END:
+
+*** Notes about Compiling and linking
+**** preprocessing, compiling and linking and assembly generation commands
+Compille
+#+begin_src sh
+  g++ -c temp.cpp // only compiles and generates obj files
+  g++ -c impl.cpp // generates obj file doesnot require main func
+
+  g++ temp.o impl.o -o ./temp // links the files
+  g++ temp.cpp impl.cpp -o ./temp // Same results compilation and links happens together
+
+  g++ -E temp.cpp // outputs temp.cpp after pre-processing
+  g++ -E -P temp.cpp // Hides pre-processor comments
+
+  g++ -S temp.cpp // outputs the assembly instructions
+#+end_src
+**** Compiling
+- Take text files and create intermediate files called object files .o extension
+- STEP1: Preprocessor statements are evaluated first (this includes the #include or #define etc)
+- AST Generation: The compiler parses the english like source into tokens and generates a tree like structured that can be easily traversed later for evaluation. This tree is called abstract syntax tree.
+- Finally with AST, compiler generates code (machine code) representing both instructions and data that CPU can execute
+
+***** Translational Units and obj files
+- A program can be split intro multiple cpp files
+- When compiled every cpp file will always be compiled into individual obj files.
+- This individual obj files are called transational units
+- Files generally have no meaning in the implementation of compiler
+- They are just a way for us to visually/logically seperate code for us to be managable
+- This means we can feed files with any extension and compiler can read it
+- We have to explicitly specify rule for custom extension for compiler to either treat it like .cpp or .c or .h file.
+- .h .cpp and .c extension are pre-registered built-in. They are not so special in themselves
+
+- This is important because we can include multiple cpp files in a single cpp file and compile it to result in single translation units.
+- A translation unit doesenot necessarily equal to a translational units
+- However note that every cpp file will produce a obj files
+
+***** Includes  and define statements
+- When you #include you specify a file. Compiler goes to the file and copy paste its content in place of #include statements. Its that simple.
+
+  Lets declare a header file "test.h"
+  #+begin_export C
+  }
+  #+end_export
+
+  Then a main c file:
+  #+begin_src C++ :results output :exports both
+    int main(){
+       return 0;
+   #include "test.h"
+  #+end_src
+
+  This will output:
+  #+begin_src C++ :results output :exports both
+     int main(){
+        return 0;
+    }
+  #+end_src
+
+  This copy pasting also applies to #define statements. Compiler just do a search replace on the source file.
+
+**** Linking
+- Links the objs file generated when compiling
+- Combines to build an executable with and entry point
+- Complains if main not found. Entry point can be anything main is just convention
+- Also does the checking for included or prototypes definitions which compiler doesnot require
+- When the exact signature matching find fails while including other files. Generates unrecognized external symbol
+- Similarly Linker skips compilation if the imported stuff is never used in current file.
+- However, linker complains about func defined/declared inside even tho its not used (unless declared static)
+   (I couldnot replicate this behaviour with g++ sadly)
+
+- Common linking error: Duplicate definitions
+- This generally happens if you include a file with definition and also define it in current file
+- Easy fix Use header file only for prototype and preprocessing and never include cpp files
+- When including cpp files confirm/check know what you're doing also use static whenever possible to prevent this
 
 *** Pointer
 An integer storing memory address
@@ -71,12 +147,12 @@ In python the first two line would have produced the desired output.
 #+begin_src python :results output :exports both
   a = 3
   b = a
-  print("A:", hex(id(a)), "\nB:", hex(id(b)))
+  print("A:", hex(id(a)), "\nB: ", hex(id(b)))
 #+end_src
 
 #+RESULTS:
 : A: 0x955e80
-: B: 0x955e80
+: B:  0x955e80
 
 Well in C++ things are different and you have to use Reference
 
@@ -101,7 +177,7 @@ Emulating pointers:
 #+end_src
 
 #+RESULTS:
-: A: 11
+: A: 10
 
 This is standard syntax used when trying to emulate a pass by reference in C. You dont want to pass the actual value 10 but you want to be able to modify it. Passing address of 10 and putting anything in that address is the way
 
@@ -149,7 +225,7 @@ Pointers do too much.
   - Passing things to function for the function to modify the underlying value
 
 
-DIFFRENCE WITH POINTERS (from bjarne c++ programming priciple and practice book)
+DIFFERENCE WITH POINTERS (from bjarne c++ programming priciple and practice book)
 
 - Assignment to a pointer changes the pointer's value (not the pointed-to value).
 
@@ -157,7 +233,7 @@ DIFFRENCE WITH POINTERS (from bjarne c++ programming priciple and practice book)
 
 - To access an object pointed to by a pointer you use * or [].
 
-- Assignment to a reference changes the value of the object referred to (not
+ - Assignment to a reference changes the value of the object referred to (not
 the reference itself).
 
 - You cannot make a reference refer to a different object after initialization.
@@ -199,30 +275,29 @@ This is the difference we really care about. Since a whole culture of programmer
  Again no difference to the compiler just semantic notion and popular convention that's it.
 
 *** Class Example: Console Log class
-source file: [[file:class_log_example.cpp]]
-
 **** Designing API
 
 #+name: Main
 #+begin_src C++
   int main(){
       Log log;
-
       log.Info("Setting level to Error");
       log.SetLevel(log.LogLevelError);
-      log.Warn("This is warning!");
-      log.Error("This is error!!");
+      log.Warn("This is warning");
+      log.Error("This is error");
 
 
       log.SetLevel(log.LogLevelInfo);
       log.Info("Setting level to Info");
-      log.Error("This is error!!");
-      log.Warn("This is warning!");
-      log.Info("This is info.");
+      log.Error("This is error");
+      log.Warn("This is warning");
+      log.Info("This is info");
 
       return 0;
     }
 #+end_src
+
+#+RESULTS: Main
 
 **** Make class
 #+name: LogClass
@@ -273,8 +348,66 @@ source file: [[file:class_log_example.cpp]]
 
 #+RESULTS:
 : [Info]: Setting level to Error
-: [Error]: This is error!!
+: [Error]: This is error
 : [Info]: Setting level to Info
-: [Error]: This is error!!
-: [Warn]: This is warning!
-: [Info]: This is info.
+: [Error]: This is error
+: [Warn]: This is warning
+: [Info]: This is info
+
+*** Class: Defining methods outside the classes
+***** Includes
+#+name: Includes
+#+begin_src C++
+  #include <iostream>
+#+end_src
+
+***** Addition class definition
+#+name: AdditionClass
+#+begin_src C++
+  class Addition{
+  private:
+    int a, b, sum;
+  public:
+    void get(int x, int y);
+    void process();
+    void print();
+  };
+
+  void Addition::get(int x, int y){
+    a = x;
+    b = y;
+  }
+
+  void Addition::process(){
+    sum = a+b;
+  }
+
+  void Addition::print(){
+    std::cout << "Sum of the " << a << " and " << b << " is " << sum << std::endl;
+  }
+#+end_src
+
+***** Main loop
+#+name: MainFunc
+#+begin_src C++
+  int main(){
+    Addition A;
+    A.get(10, 20);
+    A.process();
+    A.print();
+    return 0;
+    }
+#+end_src
+
+***** Program
+#+begin_src C++ :results output :main no :exports both :tangle ~/dev/csit/class_method_define_outside.cpp :noweb yes
+  <<Includes>>
+
+  <<AdditionClass>>
+
+  <<MainFunc>>
+
+#+end_src
+
+#+RESULTS:
+: Sum of the 10 and 20 is 30

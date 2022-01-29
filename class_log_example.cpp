@@ -29,18 +29,17 @@ class Log{
 
 int main(){
     Log log;
-
     log.Info("Setting level to Error");
     log.SetLevel(log.LogLevelError);
-    log.Warn("This is warning!");
-    log.Error("This is error!!");
+    log.Warn("This is warning");
+    log.Error("This is error");
 
 
     log.SetLevel(log.LogLevelInfo);
     log.Info("Setting level to Info");
-    log.Error("This is error!!");
-    log.Warn("This is warning!");
-    log.Info("This is info.");
+    log.Error("This is error");
+    log.Warn("This is warning");
+    log.Info("This is info");
 
     return 0;
   }
