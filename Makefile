@@ -13,16 +13,16 @@
 .PHONY: temprun loose clean
 
 temp: temp.cpp
-	$(g++) g++ temp.cpp -ggdb3 -O0 -o temp -Wall -Werror -Wextra -Wshadow -pedantic-errors -lm
+	$(g++) g++ temp.cpp -ggdb3 -O0  -Wall -Werror -Wextra -Wshadow -pedantic-errors -std=c++11 -lm -o temp
 
 temprun:temp
 	./temp
 
 aa: aa.cpp
-	$(g++) g++  -ggdb3 -O0 -o aa -Wall -Werror -Wextra -Wshadow -pedantic-errors -lm
+	$(g++) g++  -ggdb3 -O0 -Wall -Werror -Wextra -Wshadow -pedantic-errors -std=c++11 -lm -o aa
 
 loose: temp.cpp
-	$(g++) g++ temp.cpp -ggdb3 -o temp -Wall -ledit -lm
+	$(g++) g++ temp.cpp -ggdb3 -Wall -ledit -std=c++11 -lm -o temp
 
 clean:
 	rm ./a.out ./temp ./aa
@@ -30,7 +30,6 @@ clean:
 # Run all cpp files with g++
 OBJCpp=$(patsubst %.cpp, %.out, $(wildcard *.cpp))
 %.out: %.cpp
-	$(g++) g++ $< -ggdb3 -o $@ -Wall -Werror -Wextra -Wshadow -pedantic-errors -lm
+	$(g++) g++ $< -ggdb3 -Wall -Werror -Wextra -Wshadow -pedantic-errors -std=c++11 -lm -o $@
 
 all: $(OBJCpp)
-

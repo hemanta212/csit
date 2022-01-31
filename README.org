@@ -3,7 +3,7 @@
 #+PROPERTY: header-args: lang           :varname value
 #+PROPERTY: header-args:C++             :results output  :flags -std=c++17 -Wall --pedantic -Werror
 
-* C++
+** C++
 Sources:
 - The Cherno(YTube) c++ series
 - Programming principles and practice in C++ book by Dr. Stroustrup
@@ -23,22 +23,25 @@ Sources:
 - [[#static-for-class-and-structs][Static for class and structs]]
 - [[#enums][Enums]]
 - [[#update-log-class-to-use-enum][Update: Log Class to use enum]]
+- [[#constructors][Constructors]]
+- [[#destructors][Destructors]]
+- [[#inheritance][Inheritance]]
 :END:
 
 *** Notes about Compiling and linking
 **** preprocessing, compiling and linking and assembly generation commands
 Compille
 #+begin_src sh
-  g++ -c temp.cpp // only compiles and generates obj files
-  g++ -c impl.cpp // generates obj file doesnot require main func
+  g++ -c temp.cpp # only compiles and generates obj files
+  g++ -c impl.cpp # generates obj file doesnot require main func
 
-  g++ temp.o impl.o -o ./temp // links the files
-  g++ temp.cpp impl.cpp -o ./temp // Same results compilation and links happens together
+  g++ temp.o impl.o -o ./temp # links the files
+  g++ temp.cpp impl.cpp -o ./temp # Same results compilation and links happens together
 
-  g++ -E temp.cpp // outputs temp.cpp after pre-processing
-  g++ -E -P temp.cpp // Hides pre-processor comments
+  g++ -E temp.cpp # outputs temp.cpp after pre-processing
+  g++ -E -P temp.cpp # Hides pre-processor comments
 
-  g++ -S temp.cpp // outputs the assembly instructions
+  g++ -S temp.cpp # outputs the assembly instructions
 #+end_src
 **** Compiling
 - Take text files and create intermediate files called object files .o extension
@@ -64,9 +67,9 @@ Compille
 - When you #include you specify a file. Compiler goes to the file and copy paste its content in place of #include statements. Its that simple.
 
   Lets declare a header file "test.h"
-  #+begin_export C
+  #+begin_src C
   }
-  #+end_export
+  #+end_src
 
   Then a main c file:
   #+begin_src C++ :results output :exports both
@@ -125,12 +128,12 @@ pointer are a entirely new variable (exists in memory thus has its own addr). Th
 Refrences only can be made on top of existing var. They are not present in the memory and take no space. Its impossible to create a reference to NULL.
 
 
-// ampersand (&) beside a variable is a "addresof" operator
+- ampersand (&) beside a variable is a "addresof" operator
 #+begin_src C++
   int* b = &a;
 #+end_src
 
-// ampersand as part of type is a reference
+- ampersand as part of type is a reference
 #+begin_src C++
   int& b = a;
 #+end_src
@@ -326,9 +329,8 @@ This is the difference we really care about. Since a whole culture of programmer
     }
 #+end_src
 
-***** Program
-DMOC refers to shortform of this problem: Declaring method outside class
-#+begin_src C++ :results output :main no :exports both :tangle ~/dev/csit/class_method_define_outside.cpp :noweb yes
+***** Output
+#+begin_src C++ :results output :main no :exports results :tangle ~/dev/csit/class_method_define_outside.cpp :noweb yes
   <<DMOCIncludes>>
 
   <<DMOCAdditionClass>>
@@ -402,8 +404,8 @@ DMOC refers to shortform of this problem: Declaring method outside class
   #include <iostream>
 #+end_src
 
-**** Combine
-#+begin_src C++ :main no :noweb yes :exports both :tangle ~/dev/csit/class_log_example.cpp :results output
+**** Output
+#+begin_src C++ :main no :noweb yes :exports results :tangle ~/dev/csit/class_log_example.cpp :results output
   <<LogInclude>>
 
   <<LogClass>>
@@ -615,8 +617,8 @@ DMOC refers to shortform of this problem: Declaring method outside class
   #include <iostream>
 #+end_src
 
-**** Combine
-#+begin_src C++ :main no :noweb yes :exports both :tangle ~/dev/csit/class_log_example.cpp :results output
+**** Output
+#+begin_src C++ :main no :noweb yes :exports results :tangle ~/dev/csit/class_log_example.cpp :results output
   <<LogIncludeEnum>>
 
   <<LogClassEnum>>
@@ -632,3 +634,196 @@ DMOC refers to shortform of this problem: Declaring method outside class
 : [Error]: This is error
 : [Warn]: This is warning
 : [Info]: This is info
+
+*** Constructors
+- A constructor is an special method that gets called everytime a class gets instanciated
+- Name of the method is same as name of class
+  #+begin_src C++ :results output :exports both :includes <iostream>
+    class Test{
+       public:
+         float x, y;
+
+         Test(){
+           // Initialize the values to default choice
+           x = 100;
+           y = 100;
+         }
+    };
+
+    int main(){
+       Test t = Test();
+       std::cout << t.x << ", " << t.y << std::endl;
+       return 0;
+     }
+  #+end_src
+
+  #+RESULTS:
+  : 100, 100
+
+- Saves hassle of calling setup function for every object instanciation
+- Similar to the dunder init method in python
+- Similar to function and methods the constructors can also be overloaded to initialized with different sets of parameters
+
+**** Important note
+- Initialization of even primitive types is very important in C++ since they aren't done automatically.
+- Some compiler will throw error if we try to use it uninitialized so extremely important to have these constructors to take off the surface area of error from programmers shoulders
+
+**** Disabling a constructor
+- If you want your class to contain static members only and dont want to let anyone instantiate an object from it, you have an option to do it.
+- C++ by default provides an constructor (empty method) for us which gets overrided once we declared our own.
+- This is the reason every single class can be instanciated in C++
+- A ClassName() function is implicitly called whenever we instanciate an object
+  #+begin_src C++
+    class Test{};
+
+    int main(){
+      Test t = Test(); // powered by the default empty constructor
+    }
+  #+end_src
+
+- To disable it either you define your own constructor and make it private.
+  #+begin_src C++
+    class Test{
+      private:
+        Test(){}
+    };
+
+    int main(){
+      Test t = Test();
+    }
+  #+end_src
+
+- Disabling it causes the implicit call of Test::Test() to fail as it is private.
+  #+begin_src shell
+    main.cpp: In function ‘int main()’:
+    main.cpp:7:21: error: ‘Test::Test()’ is private within this context
+        7 |       Test t = Test();
+          |                     ^
+    main.cpp:3:9: note: declared private here
+        3 |         Test(){}
+          |         ^~~~
+  #+end_src
+
+- Or you can also delete the default constructor without overriding it with your own
+  #+begin_src C++
+    class Test{
+      public:
+        Test() = delete;
+    };
+
+    int main(){
+      Test t = Test();
+    }
+  #+end_src
+
+- During implicit constructor method call, compiler complains about deleted stuff
+
+#+begin_src shell
+  main.cpp: In function ‘int main()’:
+  main.cpp:7:21: error: use of deleted function ‘Test::Test()’
+      7 |       Test t = Test();
+        |                     ^
+  main.cpp:3:9: note: declared here
+      3 |         Test() = delete;
+        |         ^~~~
+  main.cpp:7:12: error: unused variable ‘t’ [-Werror=unused-variable]
+      7 |       Test t = Test();
+        |            ^
+#+end_src
+
+*** Destructors
+- Called when object is deleted. Useful to do cleanup tasks (memory free, files delete, free locks)
+- Objects get deleted
+  - When we use new keyword to create an object and later destroy it with delete keyword
+  - When a stack scoped object gets out of scope and gets destroyed
+#+begin_src C++ :results output :exports both :includes <iostream> :tangle ~/dev/csit/class_destructor.cpp
+  class Test{
+    public:
+      Test(){std::cout << "Constructor called." << std::endl;}
+      ~Test(){std::cout << "Destructor called." << std::endl;}
+  };
+
+  int scopedFunc(){
+    std::cout << "<Func>" << std::endl;
+    Test t = Test();
+    std::cout << "</Func>" << std::endl;
+    return 0;
+  }
+
+  int main(){
+    std::cout << "<Main>" << std::endl;
+    scopedFunc();
+    std::cout << "</Main>" << std::endl;
+  }
+#+end_src
+
+#+RESULTS:
+: <Main>
+: <Func>
+: Constructor called.
+: </Func>
+: Destructor called.
+: </Main>
+
+- We can also call destructor manually unlike with constructor just using
+- There is not good usecase for this though, super rarely used.
+  #+begin_src C++ :includes <iostream> :exports both :results output
+    class Test{
+      public:
+        Test(){std::cout << "Constructor called." << std::endl;}
+        ~Test(){std::cout << "Destructor called." << std::endl;}
+    };
+
+    int main(){
+      Test t = Test();
+      t.~Test(); // calls destructor
+    }
+  #+end_src
+
+  #+RESULTS:
+  : Constructor called.
+  : Destructor called.
+  : Destructor called.
+
+*** Inheritance
+- Just a way to reuse an existing class to build a superset
+- Code Reuse and better real life model
+  #+begin_src C++ :results output :exports both :includes <iostream> :tangle ~/dev/csit/class_inheritance_intro.cpp
+     class Person{
+       private:
+         int name, height;
+       public:
+         void walk(){
+           std::cout << "Walking " << std::endl;
+           }
+
+         void write(){
+           std::cout << "Writing " << std::endl;
+        }
+     };
+
+    class Student : public Person{
+      public:
+        void attend_class(){
+          std::cout << "Attending class" << std::endl;
+        }
+      };
+
+
+    int main (){
+       Student tim = Student();
+       tim.walk(); // walk to college
+       tim.attend_class(); // Attend the class
+       tim.write(); // Take notes maybe
+   }
+  #+end_src
+
+  #+RESULTS:
+  : Walking
+  : Attending class
+  : Writing
+
+- The Student inherits everything from Person and optionally can extend itself with additioinal functionality
+- The Student is guarenteed to be a superset of Person class.
+- The ojbect tim is of both types (Student and Person)
+- This introduces polymorphism where now tim can use any method designed for both Person and Student since it is both.
