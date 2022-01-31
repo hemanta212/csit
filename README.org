@@ -3,7 +3,10 @@
 #+PROPERTY: header-args: lang           :varname value
 #+PROPERTY: header-args:C++             :results output  :flags -std=c++17 -Wall --pedantic -Werror
 
-** C++
+* C++
+Sources:
+- The Cherno(YTube) c++ series
+- Programming principles and practice in C++ book by Dr. Stroustrup
 
 *** Table of contents
 :PROPERTIES:
@@ -14,8 +17,12 @@
 - [[#pointer][Pointer]]
 - [[#references][References]]
 - [[#class-vs-structs][Class vs Structs]]
-- [[#class-example-console-log-class][Class Example: Console Log class]]
 - [[#class-defining-methods-outside-the-classes][Class: Defining methods outside the classes]]
+- [[#class-example-console-log-class][Class Example: Console Log class]]
+- [[#static-keyword-for-file-level][Static Keyword for file level]]
+- [[#static-for-class-and-structs][Static for class and structs]]
+- [[#enums][Enums]]
+- [[#update-log-class-to-use-enum][Update: Log Class to use enum]]
 :END:
 
 *** Notes about Compiling and linking
@@ -274,10 +281,69 @@ This is the difference we really care about. Since a whole culture of programmer
 
  Again no difference to the compiler just semantic notion and popular convention that's it.
 
+*** Class: Defining methods outside the classes
+***** Includes
+#+name: DMOCIncludes
+#+begin_src C++
+  #include <iostream>
+#+end_src
+
+***** Addition class definition
+#+name: DMOCAdditionClass
+#+begin_src C++
+  class Addition{
+  private:
+    int a, b, sum;
+  public:
+    void get(int x, int y);
+    void process();
+    void print();
+  };
+
+  void Addition::get(int x, int y){
+    a = x;
+    b = y;
+  }
+
+  void Addition::process(){
+    sum = a+b;
+  }
+
+  void Addition::print(){
+    std::cout << "Sum of the " << a << " and " << b << " is " << sum << std::endl;
+  }
+#+end_src
+
+***** Main loop
+#+name: DMOCMain
+#+begin_src C++
+  int main(){
+    Addition A;
+    A.get(10, 20);
+    A.process();
+    A.print();
+    return 0;
+    }
+#+end_src
+
+***** Program
+DMOC refers to shortform of this problem: Declaring method outside class
+#+begin_src C++ :results output :main no :exports both :tangle ~/dev/csit/class_method_define_outside.cpp :noweb yes
+  <<DMOCIncludes>>
+
+  <<DMOCAdditionClass>>
+
+  <<DMOCMain>>
+
+#+end_src
+
+#+RESULTS:
+: Sum of the 10 and 20 is 30
+
 *** Class Example: Console Log class
 **** Designing API
 
-#+name: Main
+#+name: LogMain
 #+begin_src C++
   int main(){
       Log log;
@@ -331,18 +397,18 @@ This is the difference we really care about. Since a whole culture of programmer
 #+end_src
 
 **** Includes
-#+name: Include
+#+name: LogInclude
 #+begin_src C++
   #include <iostream>
 #+end_src
 
 **** Combine
 #+begin_src C++ :main no :noweb yes :exports both :tangle ~/dev/csit/class_log_example.cpp :results output
-  <<Include>>
+  <<LogInclude>>
 
   <<LogClass>>
 
-  <<Main>>
+  <<LogMain>>
 
 #+end_src
 
@@ -354,60 +420,215 @@ This is the difference we really care about. Since a whole culture of programmer
 : [Warn]: This is warning
 : [Info]: This is info
 
-*** Class: Defining methods outside the classes
-***** Includes
-#+name: Includes
+*** Static Keyword for file level
+- A keyword that limits the scope of a variable or function within a translation unit
+- Very useful for defensive progamming.
+- Recommended to use s underscore (s_) convention
+- Opposite of extern where a var is only initiliazed in a file and its declaration is on another file
+
+*** Static for class and structs
+- declaring a variable static inside a class means the variable will be shared across all the instances of the class.
+- Its not created everytime an object is instantiated. If one instance changes this var it is reflected across all instances
+#+begin_src C++ :results output :exports both :includes <iostream> :tangle ~/dev/csit/class_static_variables_intro.cpp
+  class Test{
+    public:
+    static int y;
+    static int x;
+
+    public:
+    void print_x_y(){
+      std::cout << x << ", " << y <<std::endl;
+      }
+    };
+
+  int Test::x;
+  int Test::y;
+
+  int main(){
+    Test t = Test();
+    t.x = 3;
+    t.y = 4;
+    t.print_x_y();
+
+    Test t1 = Test();
+    t1.x = 9;
+    t1.y = 8;
+    t.print_x_y();
+
+    Test::x = 100;
+    Test::y = 200;
+
+    t.print_x_y();
+    t1.print_x_y();
+  }
+#+end_src
+
+#+RESULTS:
+: 3, 4
+: 9, 8
+: 100, 200
+: 100, 200
+
+- We need to actually define x and y again outside for linker to link it.
+- At this point its kinda ovious that we're modifying a single instace of x and y
+- They are similar to being inside the namespace of Test, it does have additional class benefits of being private public etc.
+- Very useful for sharing data across class instances instead of creating global variables
+
+
+- Static method is similar where you get to access the function independent of instance. Conversely this means you cannot write instance dependent code inside the class
+  This is similar to @staticmethod decorator in python.
+  #+begin_src C++ :results output :exports both :includes <iostream> :tangle ~/dev/csit/class_static_function_intro.cpp
+      class Test{
+        public:
+        static int y;
+        static int x;
+
+        public:
+        static void print_x_y(){
+          std::cout << x << ", " << y <<std::endl;
+          }
+        };
+
+      int Test::x;
+      int Test::y;
+
+      int main(){
+        Test::x = 10;
+        Test::y = 10;
+
+        Test t = Test();
+        t.print_x_y();
+        Test::print_x_y();
+
+        t.x = 100;
+        t.y = 200;
+
+        t.print_x_y();
+        Test::print_x_y();
+    }
+  #+end_src
+
+  #+RESULTS:
+  : 10, 10
+  : 10, 10
+  : 100, 200
+  : 100, 200
+
+  - Both call to print are same but since print doesnot receive the instance it's called from it is recommended to call it directly from Class name instead to make our intent explicit
+
+  #+RESULTS:
+  : 10, 10
+  : 10, 10
+
+*** Enums
+- Giving name for group of integer to make it more readable/organized.
+#+begin_src C++ :results output :exports both :includes <iostream> :tangle ~/dev/csit/enum_intro.cpp
+
+  enum TrafficLight{
+    RED, YELLOW, GREEN,
+  };
+
+  enum Grade : unsigned int{
+    A_PLUS=90, A=80, B_PLUS=70, B=60,
+  };
+
+  int main(){
+    int currentLight = RED;
+    if (currentLight < 2){
+      std::cout << "STOP" << std::endl;
+    }
+    Grade level = A_PLUS;
+    if (level > A){
+      std::cout << "You are an A Plus level student" << std::endl;
+    }
+    return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: STOP
+: You are an A Plus level student
+
+- We can specify the type of enum as interger variations (signed/unsigned char/int) but not float or double since it must be integer
+- Vars inside enums are basically a global variable not connected to the namespace so declare them inside a scoped entity like class.
+- The holder (currentLight or level) can both be defined as int or name of Enum.
+- Declaring using the name of enum (syntactically) limits its assignation to the value other than members of enum.
+
+*** Update: Log Class to use enum
+**** The class
+#+name: LogClassEnum
+#+begin_src C++
+  class Log{
+    public:
+      enum Level: unsigned int{
+        LevelError = 0, LevelWarning = 1, LevelInfo = 2
+      };
+
+    private:
+      Level m_logLevel = LevelInfo;
+
+    public:
+      void SetLevel(Level level){
+        m_logLevel = level;
+     }
+      void Error(const char* message){
+        if(m_logLevel >= LevelError)
+         std::cout << "[Error]: " << message << std::endl;
+      }
+      void Warn(const char* message){
+        if(m_logLevel >= LevelWarning)
+         std::cout << "[Warn]: " << message << std::endl;
+      }
+      void Info(const char* message){
+        if(m_logLevel >= LevelInfo)
+         std::cout << "[Info]: " << message << std::endl;
+      }
+    };
+#+end_src
+
+#+RESULTS: LogClassEnum
+
+**** Main func
+#+name: LogMainEnum
+#+begin_src C++
+  int main(){
+      Log log;
+      log.Info("Setting level to Error");
+      log.SetLevel(Log::LevelError);
+      log.Warn("This is warning");
+      log.Error("This is error");
+
+
+      log.SetLevel(Log::LevelInfo);
+      log.Info("Setting level to Info");
+      log.Error("This is error");
+      log.Warn("This is warning");
+      log.Info("This is info");
+
+      return 0;
+    }
+#+end_src
+
+**** Includes
+#+name: LogIncludeEnum
 #+begin_src C++
   #include <iostream>
 #+end_src
 
-***** Addition class definition
-#+name: AdditionClass
-#+begin_src C++
-  class Addition{
-  private:
-    int a, b, sum;
-  public:
-    void get(int x, int y);
-    void process();
-    void print();
-  };
+**** Combine
+#+begin_src C++ :main no :noweb yes :exports both :tangle ~/dev/csit/class_log_example.cpp :results output
+  <<LogIncludeEnum>>
 
-  void Addition::get(int x, int y){
-    a = x;
-    b = y;
-  }
+  <<LogClassEnum>>
 
-  void Addition::process(){
-    sum = a+b;
-  }
-
-  void Addition::print(){
-    std::cout << "Sum of the " << a << " and " << b << " is " << sum << std::endl;
-  }
-#+end_src
-
-***** Main loop
-#+name: MainFunc
-#+begin_src C++
-  int main(){
-    Addition A;
-    A.get(10, 20);
-    A.process();
-    A.print();
-    return 0;
-    }
-#+end_src
-
-***** Program
-#+begin_src C++ :results output :main no :exports both :tangle ~/dev/csit/class_method_define_outside.cpp :noweb yes
-  <<Includes>>
-
-  <<AdditionClass>>
-
-  <<MainFunc>>
+  <<LogMainEnum>>
 
 #+end_src
 
 #+RESULTS:
-: Sum of the 10 and 20 is 30
+: [Info]: Setting level to Error
+: [Error]: This is error
+: [Info]: Setting level to Info
+: [Error]: This is error
+: [Warn]: This is warning
+: [Info]: This is info

@@ -33,11 +33,10 @@ int main()
     cout << "Enter length and breadth of second rectangle: ";
     cin >> l2 >> b2;
 
-    Rectangle r(l1, b1);
-    int area = r.area();
-    int area2 = r.area(l2, b2);
+    Rectangle rect(l1, b1);
+    int area = rect.area();
+    int area2 = rect.area(l2, b2);
     cout << "Area of Rectangle is " << area << endl;
     cout << "Area of Rectangle2 is " << area2 << endl;
     return 0;
 }
-
