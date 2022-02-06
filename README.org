@@ -26,6 +26,8 @@ Sources:
 - [[#constructors][Constructors]]
 - [[#destructors][Destructors]]
 - [[#inheritance][Inheritance]]
+- [[#virtual-function][Virtual Function]]
+- [[#interfaces-pure-virtual-functions][Interfaces (Pure virtual functions)]]
 :END:
 
 *** Notes about Compiling and linking
@@ -285,13 +287,13 @@ This is the difference we really care about. Since a whole culture of programmer
  Again no difference to the compiler just semantic notion and popular convention that's it.
 
 *** Class: Defining methods outside the classes
-***** Includes
+**** Includes
 #+name: DMOCIncludes
 #+begin_src C++
   #include <iostream>
 #+end_src
 
-***** Addition class definition
+**** Addition class definition
 #+name: DMOCAdditionClass
 #+begin_src C++
   class Addition{
@@ -317,7 +319,7 @@ This is the difference we really care about. Since a whole culture of programmer
   }
 #+end_src
 
-***** Main loop
+**** Main loop
 #+name: DMOCMain
 #+begin_src C++
   int main(){
@@ -329,7 +331,7 @@ This is the difference we really care about. Since a whole culture of programmer
     }
 #+end_src
 
-***** Output
+**** Output
 #+begin_src C++ :results output :main no :exports results :tangle ~/dev/csit/class_method_define_outside.cpp :noweb yes
   <<DMOCIncludes>>
 
@@ -694,15 +696,15 @@ This is the difference we really care about. Since a whole culture of programmer
   #+end_src
 
 - Disabling it causes the implicit call of Test::Test() to fail as it is private.
-  #+begin_src shell
-    main.cpp: In function ‘int main()’:
-    main.cpp:7:21: error: ‘Test::Test()’ is private within this context
+  #+begin_example
+    main.cpp: In function int main():
+    main.cpp:7:21: error: Test::Test() is private within this context
         7 |       Test t = Test();
           |                     ^
     main.cpp:3:9: note: declared private here
         3 |         Test(){}
           |         ^~~~
-  #+end_src
+  #+end_example
 
 - Or you can also delete the default constructor without overriding it with your own
   #+begin_src C++
@@ -718,18 +720,18 @@ This is the difference we really care about. Since a whole culture of programmer
 
 - During implicit constructor method call, compiler complains about deleted stuff
 
-#+begin_src shell
-  main.cpp: In function ‘int main()’:
-  main.cpp:7:21: error: use of deleted function ‘Test::Test()’
+#+begin_example
+  main.cpp: In function int main():
+  main.cpp:7:21: error: use of deleted function Test::Test()
       7 |       Test t = Test();
         |                     ^
   main.cpp:3:9: note: declared here
       3 |         Test() = delete;
         |         ^~~~
-  main.cpp:7:12: error: unused variable ‘t’ [-Werror=unused-variable]
+  main.cpp:7:12: error: unused variable [-Werror=unused-variable]
       7 |       Test t = Test();
         |            ^
-#+end_src
+#+end_example
 
 *** Destructors
 - Called when object is deleted. Useful to do cleanup tasks (memory free, files delete, free locks)
@@ -809,7 +811,6 @@ This is the difference we really care about. Since a whole culture of programmer
         }
       };
 
-
     int main (){
        Student tim = Student();
        tim.walk(); // walk to college
@@ -827,3 +828,205 @@ This is the difference we really care about. Since a whole culture of programmer
 - The Student is guarenteed to be a superset of Person class.
 - The ojbect tim is of both types (Student and Person)
 - This introduces polymorphism where now tim can use any method designed for both Person and Student since it is both.
+*** Virtual Function
+- Method overriding kinda breaks polymorphism
+  #+begin_example
+  class1->func {returns '1'}
+  class2->func {returns '2'}
+
+  class1* c1 =  new class2();
+  c1->func  // returns '1'
+  #+end_example
+  More specifically (same thing explicitly)
+  #+begin_example
+  void print_class(class1* c){
+        cout << c->func() ;
+  }
+  class2* c2 = new class2()
+  print_class(c2) // prints 1
+  #+end_example
+
+This happens since the function signature of =print_class= matches more accurately with class1 so it just directly calls its method without bothering to look if =class2= is overriding/contains same method as well.
+
+- Example in C++ code:
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Parent{
+    public:
+    int func() {return 1;}
+    };
+
+   class Child : public Parent{
+     public:
+    int func() {return 2;}
+    };
+
+  void print_func(Parent* obj){
+    std::cout << obj->func() << std::endl;
+    }
+
+  int main(){
+    Parent* obj = new Child();
+    std::cout << obj->func() << std::endl;
+
+    Child* obj2 = new Child();
+    print_func(obj2);
+    }
+#+end_src
+
+#+RESULTS:
+: 1
+: 1
+
+
+  SUMMARY: Well overriding parent's method work only in some simple cases but breaks in others like above
+
+  Explicitly provide =virtual= keyword while defining methods in parent class if that method is to be overridden.
+
+  *since c++ 11* :
+  - We also have option to specify this explicitly at child class level also by providing =override= keyword.
+  - It is not required but recommeded practice to document both child and parent class so we get strict checking and prevent typos errors.
+
+
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Parent{
+    public:
+    virtual int func() {return 1;}
+    };
+
+   class Child : public Parent{
+     public:
+    int func() override {return 2;}
+    };
+
+  void print_func(Parent* obj){
+    std::cout << obj->func() << std::endl;
+    }
+
+  int main(){
+    Parent* obj = new Child();
+    std::cout << obj->func() << std::endl;
+
+    Child* obj2 = new Child();
+    print_func(obj2);
+    }
+#+end_src
+
+#+RESULTS:
+: 2
+: 2
+
+*NOTES*:
+- This feature is enabled by compiler taking extra notes of stuff using vtables. So we incur memory and performance overhead.
+- Generally unnoticable overhead unless you know in microcontroller or contrained environments
+
+*** Interfaces (Pure virtual functions)
+- =virtual= keyword hints compiler there may be child's version of a function. Whereas interface or pure virtual function require the child to do so and don't have any implementation at parent's side.
+- So use virtual option when you have a general default fallback implementation.
+- Use interface when it doesnot makes any sense to provide any implementation at parent's side (eg due to lack of req info)
+
+- In python, we often design classes and methods in such a way to force subclasses to define their own method.
+  #+begin_src python :eval never
+    class Person:
+        def get_gender():
+            raise NotImplementedError("")
+
+        @abstractmethod
+        def get_gender():
+            pass
+  #+end_src
+
+  #+RESULTS:
+
+- This exposes the function name as an api but if the subclass doesnot provide an implementation an error is going to be issued
+- The =@abstractmethod= won't let you instantiate without implementing all parent funcs
+- The raise trick only works when calling the =get_gender= function so less strict/enforced.
+
+
+#+begin_src C++ :eval no-export
+  class Parent{
+    public:
+    virtual int func() = 0;
+    };
+
+   class Child : public Parent{
+    };
+
+  int main(){
+    Parent* p = new Parent();
+    Child* c = new Child();
+    }
+#+end_src
+
+- you cannot ever instantiate a parent class with a pure virtual function.
+- You also wont be able to instantiate  a child class unless it has implemented that virtual function
+- Note: however the implementation has to be only once in a tree. A child whose parent has already implemented a pure virtual function doesnot need to implement its own
+#+begin_example
+main.cpp: In function ‘int main()’:
+main.cpp:17:26: error: invalid new-expression of abstract class type ‘Parent’
+   17 |   Parent* p = new Parent();
+      |                          ^
+main.cpp:8:7: note:   because the following virtual functions are pure within ‘Parent’:
+main
+main.cpp:10:15: note: 	‘virtual int Parent::func()’
+main 0;
+main.cpp:18:24: error: invalid new-expression of abstract class type ‘Child’
+main();
+main.cpp:13:8: note:   because the following virtual functions are pure within ‘Child’:
+mainParent{
+main.cpp:10:15: note: 	‘virtual int Parent::func()’
+main 0;
+#+end_example
+
+
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Parent{
+    public:
+    virtual int func() = 0;
+    };
+
+   class Child : public Parent{
+     public:
+    int func() override {return 2;}
+    };
+
+  int main(){
+    Child* p = new Child();
+    std::cout << p->func() << std::endl;
+    }
+#+end_src
+
+#+RESULTS:
+: 2
+
+- Example usage
+  #+begin_src C++ :results output :exports both :includes <iostream>
+    class Printable{
+      public:
+      virtual void print() = 0;
+      };
+
+    void print_sth(Printable* p){
+     p->print();
+      }
+
+    class String: public Printable {
+      public:
+      void print() override {std::cout << "Print like string" << std::endl;}
+      };
+
+    class Integer: public Printable {
+      public:
+      void print() override {std::cout << "Print like int" << std::endl;}
+      };
+
+      int main(){
+        print_sth(new String());
+        print_sth(new Integer());
+        }
+  #+end_src
+
+  #+RESULTS:
+  : Print like string
+  : Print like int
+
+  - Here, we must have something to guarentee in the =print_sth= function that our parameter has an implementation of the =print= function that we are calling.
