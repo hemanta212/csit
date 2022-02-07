@@ -1,11 +1,40 @@
-* REGISTERS
+* Table of contents
+:PROPERTIES:
+:TOC:      :include siblings :depth 2
+:END:
+:CONTENTS:
+- [[#table-of-contents][Table of contents]]
+- [[#registers][Registers]]
+- [[#memory][Memory]]
+- [[#commands][Commands]]
+  - [[#mov][MOV]]
+  - [[#mvi][MVI]]
+  - [[#addadi][ADD/ADI]]
+  - [[#subsui][SUB/SUI]]
+  - [[#cmpcpi][CMP/CPI]]
+  - [[#sta][STA]]
+  - [[#lda][LDA]]
+  - [[#inr][INR]]
+  - [[#dcr][DCR]]
+  - [[#out][OUT]]
+  - [[#lxi][LXI]]
+  - [[#flags][Flags]]
+  - [[#register-setup-from-1260-to-1264][Register setup from 1260 to 1264]]
+  - [[#program-adder][Program Adder]]
+- [[#inxdcx][INX/DCX]]
+- [[#problems][Problems]]
+- [[#ldax][LDAX]]
+- [[#rrcrar][RRC/RAR]]
+:END:
+
+* Registers
 * Memory
 | Address | data |
 | 0234H   | 23H  |
 | 4456H   | 33H  |
 |         |      |
 * Commands
-#+begin_src shell :export none
+#+begin_src shell :exports none
 rm -rf /tmp/8085-session1
 #+end_src
 
@@ -147,7 +176,7 @@ CPI 05
 - A < B : carry
 - A == B : no carry, zero flag
 
-#+begin_src 8085 :args -db /tmp/8085-session1 :export both
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 CMP B
 CPI 07
 #+end_src
@@ -158,7 +187,7 @@ CPI 07
 : [A] 06H - 07H -> 1H
 : FLAGS: CY->1, S->1, Z->0
 
-#+begin_src 8085 :args -db /tmp/8085-session1 :export both
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   MVI C 07
   CMP C
   CPI 02H
@@ -193,7 +222,6 @@ Memory:
 	0x0001: 0x9A
 	0x000A: 0x2B
 	0x000B: 0x34
-	0x3344: 0x06
 
 Flags:
 	carry: 0
@@ -362,9 +390,9 @@ Registers:
 	C: 0x07
 	D: 0x00
 	E: 0x00
-	H: 0x12
-	L: 0x64
-	M: 0x00
+	H: 0x33
+	L: 0x44
+	M: 0x06
 
 Memory:
 	0x0000: 0x33
@@ -433,9 +461,9 @@ Flags:
           C: 0x07
           D: 0x00
           E: 0x00
-          H: 0x12
-          L: 0x64
-          M: 0x00
+          H: 0x33
+          L: 0x44
+          M: 0x06
 
   Memory:
           0x0000: 0x33
@@ -581,6 +609,7 @@ Flags:
   HL -> 0x1265 [0x1264 + 0x1]
   B -> 1H - 1H -> 0H
   #+end_example
+
 * LDAX
 We refer to M for the value/data stored in xtended HL register
 For other we have to manually load the value to Accumulator
