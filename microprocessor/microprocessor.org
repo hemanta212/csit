@@ -1,3 +1,17 @@
+* Table of contents
+:PROPERTIES:
+:TOC:      :include siblings :depth 1
+:END:
+:CONTENTS:
+- [[#table-of-contents][Table of contents]]
+- [[#registers][REGISTERS]]
+- [[#memory][Memory]]
+- [[#commands][Commands]]
+- [[#inxdcx][INX/DCX]]
+- [[#rrcrar][RRC/RAR]]
+- [[#cmpcpi][CMP/CPI]]
+:END:
+
 * REGISTERS
 
 * Memory
