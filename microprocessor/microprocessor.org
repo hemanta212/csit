@@ -21,7 +21,7 @@
 |         |      |
 * Commands
 ** MOV
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 inspect
 #+end_src
 
@@ -52,14 +52,14 @@ Flags:
 #+end_example
 
 ** MVI
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   MVI A 03H
 #+end_src
 
 #+RESULTS:
 : A -> 03H
 
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   inspect
 #+end_src
 
@@ -89,7 +89,7 @@ Flags:
 #+end_example
 
 
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   MOV B A
   MOV C A
 #+end_src
@@ -99,7 +99,7 @@ Flags:
 : C -> 03H [From A]
 
 ** ADD/ADI
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 inspect
 #+end_src
 
@@ -128,7 +128,7 @@ Flags:
 	sign: 0
 #+end_example
 
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 ADD B
 #+end_src
 
@@ -137,7 +137,7 @@ ADD B
 
 ** SUB/SUI
 ** STA
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 inspect
 #+end_src
 
@@ -166,7 +166,7 @@ Flags:
 	sign: 0
 #+end_example
 
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 STA 3344H
 #+end_src
 
@@ -174,7 +174,7 @@ STA 3344H
 : 3344H -> 6H
 
 ** LDA
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   inspect
 #+end_src
 
@@ -204,7 +204,7 @@ Flags:
 	sign: 0
 #+end_example
 
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 LDA 0001H
 #+end_src
 
@@ -213,7 +213,7 @@ LDA 0001H
 
 ** INR
 Increment Register
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 INR A
 #+end_src
 
@@ -227,7 +227,7 @@ OUT PORT0
 OUT PORT1
 #+end_src
 ** LXI
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 LXI H 3344H
 #+end_src
 
@@ -265,7 +265,7 @@ Flags:
 	sign: 0
 #+end_example
 
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   MVI A 05
   STA 1264H
 #+end_src
@@ -282,7 +282,7 @@ Flags are one bit stuff that stores the status of *lastest* execution
 | aux c |   |
 | par   |   |
 
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   MVI A 04
   STA 1260H
 #+end_src
@@ -291,7 +291,7 @@ Flags are one bit stuff that stores the status of *lastest* execution
 : A -> 04H
 : 1260H -> 04H
 
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   MVI A 00H
   LDA 1260H
 #+end_src
@@ -302,7 +302,7 @@ Flags are one bit stuff that stores the status of *lastest* execution
 
 ** Program Adder
 *** SIMPLE
-#+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
 inspect
 #+end_src
 
@@ -337,7 +337,7 @@ Flags:
 	sign: 0
 #+end_example
 
-  #+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
     MVI A 00H
     MVI B 05H
     FIRST: ADI 01
@@ -362,7 +362,7 @@ Flags:
   B -> 1H - 1H -> 0H
   #+end_example
 
-  #+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
   inspect
   #+end_src
 
@@ -399,7 +399,7 @@ Flags:
 
 *** Memory dynamic
 - Wap to add five bytes of memory and store it in some other memory
-  #+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
     MVI A 00H
     MVI B 05H
     LXI H 1260H
@@ -438,7 +438,7 @@ Flags:
   : A -> 02H - 04H -> 2H
   : FLAGS: CY->1, S->1, Z->0
 - Wap to add five bytes of memory and store it in some other memory
-  #+begin_src 8085 :args -db /tmp/8085-session1
+#+begin_src 8085 :args -db /tmp/8085-session1 :exports both
     MVI B 04H
     LXI H 1260H
     MOV C M
