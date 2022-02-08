@@ -58,10 +58,9 @@ Registers:
 	M: 0x00
 
 Memory:
-	0x0000: 0x33
-	0x0001: 0x9A
-	0x000A: 0x2B
-	0x000B: 0x34
+	0x1000: 0x2b
+	0x1001: 0x34
+	0x0000: 0x00
 
 Flags:
 	carry: 0
@@ -95,10 +94,9 @@ Registers:
 	M: 0x00
 
 Memory:
-	0x0000: 0x33
-	0x0001: 0x9A
-	0x000A: 0x2B
-	0x000B: 0x34
+	0x1000: 0x2b
+	0x1001: 0x34
+	0x0000: 0x00
 
 Flags:
 	carry: 0
@@ -135,10 +133,9 @@ Registers:
 	M: 0x00
 
 Memory:
-	0x0000: 0x33
-	0x0001: 0x9A
-	0x000A: 0x2B
-	0x000B: 0x34
+	0x1000: 0x2b
+	0x1001: 0x34
+	0x0000: 0x00
 
 Flags:
 	carry: 0
@@ -218,10 +215,9 @@ Registers:
 	M: 0x00
 
 Memory:
-	0x0000: 0x33
-	0x0001: 0x9A
-	0x000A: 0x2B
-	0x000B: 0x34
+	0x1000: 0x2b
+	0x1001: 0x34
+	0x0000: 0x00
 
 Flags:
 	carry: 0
@@ -255,10 +251,9 @@ Registers:
 	M: 0x00
 
 Memory:
-	0x0000: 0x33
-	0x0001: 0x9A
-	0x000A: 0x2B
-	0x000B: 0x34
+	0x1000: 0x2b
+	0x1001: 0x34
+	0x0000: 0x00
 	0x3344: 0x06
 
 Flags:
@@ -273,7 +268,7 @@ LDA 0001H
 #+end_src
 
 #+RESULTS:
-: A -> 9AH [From 0001H]
+: A -> 00H [From 0001H]
 
 ** INR
 Increment Register
@@ -282,7 +277,7 @@ INR A
 #+end_src
 
 #+RESULTS:
-: A -> 9AH + 1H -> 9BH
+: A -> 00H + 01H -> 01H
 
 ** DCR
 #+begin_src 8085 :args -db /tmp/8085-session1 :exports both
@@ -290,7 +285,7 @@ DCR B
 #+end_src
 
 #+RESULTS:
-: B -> 03H - 1H -> 2H
+: B -> 03H - 01H -> 02H
 
 ** OUT
 #+begin_src 8085 :args -db /tmp/8085-session1 :exports both
@@ -299,8 +294,8 @@ OUT PORT1
 #+end_src
 
 #+RESULTS:
-: PORT0: 9BH
-: PORT1: 9BH
+: PORT0: 01H
+: PORT1: 01H
 
 ** LXI
 #+begin_src 8085 :args -db /tmp/8085-session1 :exports both
@@ -317,8 +312,8 @@ inspect
 #+RESULTS:
 #+begin_example
 Registers:
-	A: 0x9b
-	B: 0x2
+	A: 0x01
+	B: 0x02
 	C: 0x07
 	D: 0x00
 	E: 0x00
@@ -327,11 +322,11 @@ Registers:
 	M: 0x06
 
 Memory:
-	0x0000: 0x33
-	0x0001: 0x9A
-	0x000A: 0x2B
-	0x000B: 0x34
+	0x1000: 0x2b
+	0x1001: 0x34
+	0x0000: 0x00
 	0x3344: 0x06
+	0x0001: 0x00
 
 Flags:
 	carry: 0
@@ -386,7 +381,7 @@ inspect
 #+begin_example
 Registers:
 	A: 0x04
-	B: 0x2
+	B: 0x02
 	C: 0x07
 	D: 0x00
 	E: 0x00
@@ -395,11 +390,11 @@ Registers:
 	M: 0x06
 
 Memory:
-	0x0000: 0x33
-	0x0001: 0x9A
-	0x000A: 0x2B
-	0x000B: 0x34
+	0x1000: 0x2b
+	0x1001: 0x34
+	0x0000: 0x00
 	0x3344: 0x06
+	0x0001: 0x00
 	0x1260: 0x05
 	0x1261: 0x01
 	0x1262: 0x02
@@ -430,23 +425,23 @@ Flags:
 
           FIRST:
   A -> 00H + 01H -> 01H
-  B -> 05H - 1H -> 4H
+  B -> 05H - 01H -> 04H
 
           FIRST:
   A -> 01H + 01H -> 02H
-  B -> 4H - 1H -> 3H
+  B -> 04H - 01H -> 03H
 
           FIRST:
   A -> 02H + 01H -> 03H
-  B -> 3H - 1H -> 2H
+  B -> 03H - 01H -> 02H
 
           FIRST:
   A -> 03H + 01H -> 04H
-  B -> 2H - 1H -> 1H
+  B -> 02H - 01H -> 01H
 
           FIRST:
   A -> 04H + 01H -> 05H
-  B -> 1H - 1H -> 0H
+  B -> 01H - 01H -> 00H
   #+end_example
 
 #+begin_src 8085 :args -db /tmp/8085-session1 :exports both
@@ -457,7 +452,7 @@ Flags:
   #+begin_example
   Registers:
           A: 0x05
-          B: 0x0
+          B: 0x00
           C: 0x07
           D: 0x00
           E: 0x00
@@ -466,11 +461,11 @@ Flags:
           M: 0x06
 
   Memory:
-          0x0000: 0x33
-          0x0001: 0x9A
-          0x000A: 0x2B
-          0x000B: 0x34
+          0x1000: 0x2b
+          0x1001: 0x34
+          0x0000: 0x00
           0x3344: 0x06
+          0x0001: 0x00
           0x1260: 0x05
           0x1261: 0x01
           0x1262: 0x02
@@ -506,28 +501,28 @@ Flags:
 
           FIRST:
   A -> 00H + 05H -> 05H
-  HL -> 0x1261 [0x1260 + 0x1]
-  B -> 05H - 1H -> 4H
+  HL -> 0x1261 [0x1260 + 0x01]
+  B -> 05H - 01H -> 04H
 
           FIRST:
   A -> 05H + 01H -> 06H
-  HL -> 0x1262 [0x1261 + 0x1]
-  B -> 4H - 1H -> 3H
+  HL -> 0x1262 [0x1261 + 0x01]
+  B -> 04H - 01H -> 03H
 
           FIRST:
   A -> 06H + 02H -> 08H
-  HL -> 0x1263 [0x1262 + 0x1]
-  B -> 3H - 1H -> 2H
+  HL -> 0x1263 [0x1262 + 0x01]
+  B -> 03H - 01H -> 02H
 
           FIRST:
   A -> 08H + 03H -> 0BH
-  HL -> 0x1264 [0x1263 + 0x1]
-  B -> 2H - 1H -> 1H
+  HL -> 0x1264 [0x1263 + 0x01]
+  B -> 02H - 01H -> 01H
 
           FIRST:
   A -> 0BH + 04H -> 0FH
-  HL -> 0x1265 [0x1264 + 0x1]
-  B -> 1H - 1H -> 0H
+  HL -> 0x1265 [0x1264 + 0x01]
+  B -> 01H - 01H -> 00H
   #+end_example
 
 * INX/DCX
@@ -539,8 +534,8 @@ Flags:
 
 #+RESULTS:
 : HL -> 0x1260 [H -> 0x12 L -> 0x60]
-: HL -> 0x1261 [0x1260 + 0x1]
-: HL -> 0x1260 [0x1261 - 0x1]
+: HL -> 0x1261 [0x1260 + 0x01]
+: HL -> 0x1260 [0x1261 - 0x01]
 
 * Problems
 - Wap to add five bytes of memory and store it in some other memory
@@ -578,8 +573,8 @@ Flags:
   C -> 04H [From A]
 
           SECOND:
-  HL -> 0x1262 [0x1261 + 0x1]
-  B -> 04H - 1H -> 3H
+  HL -> 0x1262 [0x1261 + 0x01]
+  B -> 04H - 01H -> 03H
 
           FIRST:
   A -> 02H [From M]
@@ -588,8 +583,8 @@ Flags:
   C -> 02H [From A]
 
           SECOND:
-  HL -> 0x1263 [0x1262 + 0x1]
-  B -> 3H - 1H -> 2H
+  HL -> 0x1263 [0x1262 + 0x01]
+  B -> 03H - 01H -> 02H
 
           FIRST:
   A -> 03H [From M]
@@ -597,8 +592,8 @@ Flags:
   FLAGS: CY->0, S->0, Z->0
 
           SECOND:
-  HL -> 0x1264 [0x1263 + 0x1]
-  B -> 2H - 1H -> 1H
+  HL -> 0x1264 [0x1263 + 0x01]
+  B -> 02H - 01H -> 01H
 
           FIRST:
   A -> 04H [From M]
@@ -606,8 +601,8 @@ Flags:
   FLAGS: CY->0, S->0, Z->0
 
           SECOND:
-  HL -> 0x1265 [0x1264 + 0x1]
-  B -> 1H - 1H -> 0H
+  HL -> 0x1265 [0x1264 + 0x01]
+  B -> 01H - 01H -> 00H
   #+end_example
 
 * LDAX
