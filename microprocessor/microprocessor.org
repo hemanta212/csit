@@ -538,8 +538,7 @@ Flags:
 : HL -> 0x1260 [0x1261 - 0x01]
 
 * Problems
-- Wap to add five bytes of memory and store it in some other memory
-
+** Wap to add five bytes of memory and store it in some other memory
   HAS LOGIC PROBLEM ONLY FIX AS EXCERCISE TO READER
   - Also There are two ways to fix this
   #+begin_src 8085 :args -db /tmp/8085-session1 :exports both
