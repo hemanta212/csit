@@ -28,6 +28,7 @@ Sources:
 - [[#inheritance][Inheritance]]
 - [[#virtual-function][Virtual Function]]
 - [[#interfaces-pure-virtual-functions][Interfaces (Pure virtual functions)]]
+- [[#arrays][Arrays]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1030,3 +1031,64 @@ main 0;
   : Print like int
 
   - Here, we must have something to guarentee in the =print_sth= function that our parameter has an implementation of the =print= function that we are calling.
+
+*** Arrays
+- Important fact how a data is stored in memory
+  #+begin_src C++ :results output :exports both :main yes :includes <iostream>
+    int i = 5;
+    std::cout << &i << std::endl;
+  #+end_src
+
+  #+RESULTS:
+  : 0x7fffa54c08a4
+
+  * What it means for a computer to be 16/32/64 bit processor.
+   - The <x>-bit generally refers to the address and data bus width.
+  - The addr bus determines the range of unique memory address there can be in a memory
+  - Data bus specifies how much data can flow at a time through the bus lines (parallelly)
+
+  * Note however, though the adress length might coresspond to 32-bit/64-bit system, its not true for data.
+  * https://stackoverflow.com/questions/5215495/one-memory-location-in-a-computer-stores-how-much-data
+  * One memory location stores 1 byte. This can be thought as helpful abstraction (not technological limitation). The official term is =byte addressable=
+
+  | addresses        | a4 | a5 | a6 | a7 | a8 | a9 | aa |
+  | 0x7ffc93558e[a4] | 05 | 00 | 00 | 00 | cc | zz | hh |
+  | 0x7ffc93558e[ab] | bd | ac | 9a | cc | 1b | ee | ff |
+  | 0x7ffc93558e[b2] | aa | ff | bb | ee | dd | bb | aa |
+  | 0x7ffc93558e[b9] | aa | 04 | 00 | 33 | 88 | 33 | 2b |
+
+  The type information is only useful in that compiler now can take only first 4 8-bit things out of that address. Otherwise no way to know how much to take
+  #+begin_src C++ :results output :exports both :main yes :includes <iostream>
+    int i = 6;
+    int* ptr = &i;
+    int a = *(ptr);
+    int b = *(ptr + 1);
+    std::cout << *(ptr) << std::endl;
+    //std::cout << (*int)((*char)(ptr + 8)) << std::endl;
+  #+end_src
+
+  #+RESULTS:
+  : 1796448684
+
+**** About storing char arrays or arrays in general in memory
+- For example a char array of 4 chars (4 byte) will be stored contiguously in 4 serial memory address =0x00029B[30/31/32/33]= and also 34 for null terminating char.
+- Eg. We're storing ="Raju"= =[52 - R, 61 - a, 6a - j, 75 - u, 00 - '\0']=. The numbers are in hex not int so convert to compare in ascii table
+
+| 0x00029B30 | 52 | 61 | 6a | 75 | 00 | 00 |
+| 0x00029B69 | 00 | 00 | 00 | 01 | 00 | 00 |
+| 0x00029BA2 | 65 | 20 | 76 | 61 | 72 | 69 |
+| 0x00029BDB | 00 | 48 | 65 | 6c | 6c | 6f |
+| 0x00029C14 | 20 | 6e | 6f | 74 | 20 | 70 |
+| 0x00029C4D | 6c | 6c | 79 | 20 | 61 | 20 |
+
+- In this case, each char gets its own adress. Thus its equivalent for us to do =array[1]= notation vs ~*(array+1)~ notation
+- Now, this gets changed in case of integers.
+
+| 0x005BFA64 | 01 | 00 | 00 | 00 | 02 | 00 | 00 | 00 | 03 | 00 | 00 | 00 | 04 | 00 | 00 | 00 | cc | d8 |
+| 0x005BFA9D | 59 | 43 | f7 | c0 | fa | 5b | 00 | 63 | 2d | 02 | 00 | 01 | 00 | 00 | 00 | c8 | ae | a1 |
+| 0x005BFAD6 | 72 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 |
+| 0x005BFB0F | 00 | 00 | 4a | 02 | 00 | 68 | 11 | 1a | f7 | 00 | 00 | 00 | 00 | 24 | fb | 5b | 00 | 4d |
+
+- Here each nibble (8-bit) gets its own address so the int occupies 4 mem addr actually.
+- Here doing ~*(array+1)~ will give your =00= but ~array[1]~ gives your =02= since compiler translates for you.
+-  So yeah ~[]~ is a syntactic sugar for memory addr arithmetic but actually does more than help avoiding ugly ~*(array+1)~ i.e translates units to determine next mem addr with relevant data.
