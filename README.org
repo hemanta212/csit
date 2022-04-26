@@ -29,6 +29,7 @@ Sources:
 - [[#virtual-function][Virtual Function]]
 - [[#interfaces-pure-virtual-functions][Interfaces (Pure virtual functions)]]
 - [[#arrays][Arrays]]
+- [[#strings-in-c][Strings in C++]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1083,3 +1084,41 @@ main 0;
 - Here each byte (8-bit) gets its own address so the int occupies 4 mem addr actually.
 - Here doing ~*(array+1)~ will give your =00= but ~array[1]~ gives your =02= since compiler translates for you.
 -  So yeah ~[]~ is a syntactic sugar for memory addr arithmetic but actually does more than help avoiding ugly ~*(array+1)~ i.e translates units to determine next mem addr with relevant data.
+*** Strings in C++
+- Group of chars (letters, nums, text)
+- Ends in ~\0~ null terminating char
+- Since built-in char in cpp is 1 byte (8-bit), we only have ascii representation of 256 possibilities.
+- Thus using unicode chars wont work in cpp strings
+- const =char*= is very basic its just a contiguous block of memory addr ending with NULL termination
+- Stdlib =string= is a template specialization of ~char~. with ~char*~ functionality with class and many more helper functions.
+#+begin_src C++ :results output :exports both :includes <iostream>
+   int main(){
+     std::string name = "Name";
+     std::string fullname = "Mr. " + name + " " + "Surname";
+     std::cout << name << std::endl;
+     std::cout << fullname << std::endl;
+  }
+#+end_src
+
+#+RESULTS:
+: Name
+: Mr. Name Surname
+
+Appending with ~+~ operator works because the one of operand is a proper string class so it is notified of the operation thereby kicking overload function into action which takes care of appending the string.
+
+ * *NOTE* In some cases
+ String is available through ~iostream~ header but we may still need to load ~string~ header file because cout will throw an error. cout relies in string doing the overloading of ~<<~ operator to get a compatible printable type. This overload is only available using the ~string~ header.
+
+- Passing a string to function copies the string as a whole which is inefficient incase we just want to read it and promise to not modify it.
+- We use const string references in those cases.
+#+begin_src C++ :results output :exports both :includes <iostream>
+    void printer(const std::string& str){
+      std::cout << str << std::endl;
+    }
+    int main(){
+        printer(std::string("Name"));
+    }
+#+end_src
+
+#+RESULTS:
+: Name
