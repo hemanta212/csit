@@ -1058,17 +1058,8 @@ main 0;
   | 0x7ffc93558e[b9] | aa | 04 | 00 | 33 | 88 | 33 | 2b |
 
   The type information is only useful in that compiler now can take only first 4 8-bit things out of that address. Otherwise no way to know how much to take
-  #+begin_src C++ :results output :exports both :main yes :includes <iostream>
-    int i = 6;
-    int* ptr = &i;
-    int a = *(ptr);
-    int b = *(ptr + 1);
-    std::cout << *(ptr) << std::endl;
-    //std::cout << (*int)((*char)(ptr + 8)) << std::endl;
-  #+end_src
 
-  #+RESULTS:
-  : 1796448684
+  Also notice that ordering of these byte are in reverse order because of POP opcode effect. ~05 00 00 00~ is =5= and ~00 01 00 00~ is =4096=  (=1000= in hex).
 
 **** About storing char arrays or arrays in general in memory
 - For example a char array of 4 chars (4 byte) will be stored contiguously in 4 serial memory address =0x00029B[30/31/32/33]= and also 34 for null terminating char.
@@ -1089,6 +1080,6 @@ main 0;
 | 0x005BFAD6 | 72 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 |
 | 0x005BFB0F | 00 | 00 | 4a | 02 | 00 | 68 | 11 | 1a | f7 | 00 | 00 | 00 | 00 | 24 | fb | 5b | 00 | 4d |
 
-- Here each nibble (8-bit) gets its own address so the int occupies 4 mem addr actually.
+- Here each byte (8-bit) gets its own address so the int occupies 4 mem addr actually.
 - Here doing ~*(array+1)~ will give your =00= but ~array[1]~ gives your =02= since compiler translates for you.
 -  So yeah ~[]~ is a syntactic sugar for memory addr arithmetic but actually does more than help avoiding ugly ~*(array+1)~ i.e translates units to determine next mem addr with relevant data.
