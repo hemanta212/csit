@@ -30,6 +30,7 @@ Sources:
 - [[#interfaces-pure-virtual-functions][Interfaces (Pure virtual functions)]]
 - [[#arrays][Arrays]]
 - [[#strings-in-c][Strings in C++]]
+- [[#string-literals][String literals]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1122,3 +1123,93 @@ Appending with ~+~ operator works because the one of operand is a proper string 
 
 #+RESULTS:
 : Name
+
+*** String literals
+- When something is typed enclosed by a double quotes (eg ~"this"~), it is called a string literal
+- How is it interpreted? As typing literal =3= will be interpretered as an int datatype, by default string literals are inferred as =const char array= of size n (5 in case of ~"this"~ due to additional ~'\0'~).
+- We can string literals assign explicitly ~const char*~ instead of array as well.
+- By using const we're promising not to change it as strings are supposed to be immutable.
+- However, if we remove the const and modify some index like we'd do to an array, we can encounter in one of two states.
+- Compiler like clang wont compile it and give error whereas msvc will allow it. The cpp specification doesnot specify any behaviour it's undefined/banned case and we shouldnot rely on compilers implementing it.
+
+#+begin_src C++ :results output :exports code :includes <iostream>
+  int main(){
+    char* name = "Raju";
+    name[3] = 'a';
+    std::cout << name << std::endl;
+    }
+#+end_src
+
+- The *core* reason to all of this is that string literals are stored in special /read-only section/ of the memory. The assembly output will show you that any string is stored in const section of the binary file.
+- The release mode of msvc will ignore the array index modification and display the string as is and debug mode will raise ~runtime write access violation~
+- If you wanted to /modify/ a string for some reason just use ~char arrays~ (not ~char*~).
+- Note that string /are always/ stored in const read-only segment of memory but there is some vodoo special support magic happening in this case only. (A new name variable gets created in register etc learn more)
+
+#+begin_src C++ :results output :exports both :includes <iostream>
+  int main(){
+    char name[] = "Raju";
+    name[3] = 'a';
+    std::cout << name << std::endl;
+    }
+#+end_src
+
+#+RESULTS:
+: Raja
+
+
+- Using utf 8, 16, 32 strings (from cpp version 11)
+#+begin_src C++ :results output :exports both :includes <iostream>
+  int main(){
+    const char* name = "hello";
+    // wchar_t is a wide char where each char is allocated more than one (2 or 4) bytes
+    const wchar_t* name2 = L"hello"; // we need capital L otherwise error
+    // char16_t says 16 bits or 2 bytes(8-bit). so each char is fixed 2 bytes guarenteed.
+    const char16_t* name3 = u"hello";
+    // In char32_t, each char is 4 bytes. Designed to adhere to utf-32
+    const char32_t* name4 = U"hello";
+    // normal char* can also be specified with u8 at front
+    const char* name5 = u8"hello";
+    std::cout << name << std::endl;
+    std::cout << name4 << std::endl;
+    std::cout << name3 << std::endl;
+    // name2 -> wchar_t is 2 byte in windows and 4 bytes in linux (so similar to name4)
+    std::cout << name2 << std::endl;
+    }
+#+end_src
+
+#+RESULTS:
+: hello
+: 0x55649db1100c
+: 0x55649db11024
+: 0x55649db1100c
+
+- String appending keywords (since cpp 14)
+#+begin_src C++ :results output :exports code :includes <iostream>
+  int main(){
+    using namespace std::string_literals;
+    std::string name = "hello"s + " world!";
+    std::wstring name1 = L"hello"s + L" world!";
+    std::u32string name2 = U"hello"s + U" world!";
+  }
+#+end_src
+
+- String multiline format
+#+begin_src C++ :results output :exports code :includes <iostream>
+  int main(){
+    using namespace std::string_literals;
+    std::string name = R"(hello
+  world
+  line3)";
+    std::string name2 = "Line1"
+                       "Line2"
+                       "Line3";
+    std::cout << name << std::endl;
+    std::cout << name2 << std::endl;
+  }
+#+end_src
+
+#+RESULTS:
+: hello
+: world
+: line3
+: Line1Line2Line3
