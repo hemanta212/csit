@@ -32,6 +32,8 @@ Sources:
 - [[#strings-in-c][Strings in C++]]
 - [[#string-literals][String literals]]
 - [[#const-keyword][Const keyword]]
+- [[#mutable][Mutable]]
+- [[#member-initializer-list][Member Initializer List]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1356,3 +1358,118 @@ const int * const A = &val;
 // *A = 30; //will NOT compile : you can't modify val through A
 val = 30; //this will compile, val is not constant
 #+end_src
+
+*** Mutable
+- As stated earlier, in ~const~ notes, any class property marked mutable can be modified in ~const methods~ as well.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Test{
+    int a = 45;
+    mutable int debugCounter = 0;
+    public:
+      const int& getA() const {
+        debugCounter += 1;
+        return a;
+     }
+};
+int main() {Test t; const int& a = t.getA(); std::cout << a; }
+#+end_src
+
+#+RESULTS:
+: 45
+
+- Another usecases is with Lambdas
+- Normally, when you pass variables inside lambdas by value, you cannot change them.
+  You can mark the lambda func itself as mutable, to change the values of variables =passed by value=
+- However, it just creates a new variable inside the lambda scope, copies the value and then modifies it, to give us the illusion of modification.
+  Accessing the value of that variable outside the lambda will appear unchanged. (Which makes sense since you're not passing by reference but by value)
+#+begin_src C++ :results output :exports both :includes <iostream>
+  using namespace std;
+  int main(){
+    auto h = [](){std::cout << "Hello" << std::endl;};
+    h();
+
+    // = or & in [] passes every vars (in current scope) by value or by reference respectively.
+    // you can also put each variables manually/directly like [x].
+    int x = 8;
+    auto f = [=]() mutable
+      {
+        x++;
+        std::cout << x << std::endl;
+      };
+    f();
+    std::cout << x;
+    }
+#+end_src
+
+#+RESULTS:
+: Hello
+: 9
+: 8
+
+*** Member Initializer List
+- Way for us to initialize members inside the constructor
+- This is written after a ~:~ at the constructor definition.
+- Note, that the members will be initialized in order of their definition, regardless of their order in the initializer list in constructor.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Test{
+    int m_i;
+    int m_j;
+    public:
+      Test()
+        : m_i(0), m_j(0)
+      {}
+      Test(const int i, j)
+      // Order (here) doesn't matter 'i' gets initialized first then only 'j'
+        : m_j(j), m_i(i)
+      {}
+  };
+#+end_src
+
+- Why?
+- Separation of the actual action the constructor does from just routine member initializing chore.
+
+- Functional difference
+- CASE 1
+When we state class members in private/public definition, we're are calling the object's default constructor.
+When we actually initlialize them later in our constructor, we again call the objects constructor with our arguments.
+This creates two objects, one of which is discarded automatically.
+#+begin_src C++ :results output :exports both :includes <iostream>
+   class Helper{
+   public:
+     Helper(){std::cout << "Created empty" <<std::endl;}
+     Helper(int x){std::cout << "Created with " << x << std::endl;}
+   };
+   class Test{
+     Helper h; // calls Helper empty constructor
+     public:
+     Test(){
+       h = Helper(9); // we are here now initializing h to Helper(9)
+     }
+  };
+  int main(){Test t;}
+#+end_src
+
+#+RESULTS:
+: Created empty
+: Created with 9
+
+- This causes unnecessary wastage and performance overload. Thus to create an object only once we use memeber initializer list.
+- However, incase of primitive types like ~int~, it wont initialize until we explicity do so but still in string and custom datatype we are creating two items.
+#+begin_src C++ :results output :exports both :includes <iostream>
+       class Helper{
+       public:
+         Helper(){std::cout << "Created empty" <<std::endl;}
+         Helper(int x){std::cout << "Created with " << x << std::endl;}
+       };
+       class Test{
+         Helper h;
+         public:
+         Test()
+           :h(9)
+         {}
+      };
+      int main(){Test t;}
+#+end_src
+
+#+RESULTS:
+: Created with 9
