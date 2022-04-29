@@ -1066,7 +1066,7 @@ main 0;
 
 **** About storing char arrays or arrays in general in memory
 - For example a char array of 4 chars (4 byte) will be stored contiguously in 4 serial memory address =0x00029B[30/31/32/33]= and also 34 for null terminating char.
-- Eg. We're storing ="Raju"= =[52 - R, 61 - a, 6a - j, 75 - u, 00 - '\0']=. The numbers are in hex not int so convert to compare in ascii table
+- Eg. We're storing "=Raju=" =[52 - R, 61 - a, 6a - j, 75 - u, 00 - '\0']=. The numbers are in hex not int so convert to compare in ascii table
 
 | 0x00029B30 | 52 | 61 | 6a | 75 | 00 | 00 |
 | 0x00029B69 | 00 | 00 | 00 | 01 | 00 | 00 |
@@ -1126,8 +1126,8 @@ Appending with ~+~ operator works because the one of operand is a proper string 
 : Name
 
 *** String literals
-- When something is typed enclosed by a double quotes (eg ~"this"~), it is called a string literal
-- How is it interpreted? As typing literal =3= will be interpretered as an int datatype, by default string literals are inferred as =const char array= of size n (5 in case of ~"this"~ due to additional ~'\0'~).
+- When something is typed enclosed by a double quotes (eg "~this~"), it is called a string literal
+- How is it interpreted? As typing literal =3= will be interpretered as an int datatype, by default string literals are inferred as =const char array= of size n (5 in case of "~this~" due to additional '~\0~').
 - We can string literals assign explicitly ~const char*~ instead of array as well.
 - By using const we're promising not to change it as strings are supposed to be immutable.
 - However, if we remove the const and modify some index like we'd do to an array, we can encounter in one of two states.
@@ -1322,3 +1322,37 @@ Actually ~const int* name~ and ~int const* name~ are exactly the same. Remeber t
 
 #+RESULTS:
 : Hello100
+
+**** Useful note from the comments
+For people having trouble remembering the order in which const keyword is to be used, here's a quick tip.
+You have to read it backward, like the compiler does. For instance :
+
+~const int * A;~ ==> "A is a pointer to an int that is constant."
+(or, depending on how you prefer to write it)
+~int const* A;~ ==> "A is a pointer to a const int"
+but both are the same as explained in the video.
+
+~int * const A;~ ==> "A is a const pointer to an int."
+~const int* const A;~ ==> "A is a const pointer to an int that is constant".
+
+Note that, ~const int * A~ /does not/ mean that A actually points to a =const variable=. It just means that the compiler /will not allow/ you to modify the *pointed value through A*.
+
+for instance :
+#+begin_src C++ :results output :exports both
+int val = 10;
+int const * a = &val;
+// *a = 30; //this will NOT compile, you're not allowed to modify "val" through "a".
+val = 30; //this will compile.
+#+end_src
+
+Same with :
+
+#+begin_src C++ :results output :exports both
+int val = 10;
+int val2 = 30;
+const int * const A = &val;
+
+// A = &val2; //will NOT compile : you can't modify what A points to.
+// *A = 30; //will NOT compile : you can't modify val through A
+val = 30; //this will compile, val is not constant
+#+end_src
