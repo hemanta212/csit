@@ -31,6 +31,7 @@ Sources:
 - [[#arrays][Arrays]]
 - [[#strings-in-c][Strings in C++]]
 - [[#string-literals][String literals]]
+- [[#const-keyword][Const keyword]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1194,7 +1195,7 @@ Appending with ~+~ operator works because the one of operand is a proper string 
 #+end_src
 
 - String multiline format
-#+begin_src C++ :results output :exports code :includes <iostream>
+#+begin_src C++ :results output :exports both :includes <iostream>
   int main(){
     using namespace std::string_literals;
     std::string name = R"(hello
@@ -1213,3 +1214,111 @@ Appending with ~+~ operator works because the one of operand is a proper string 
 : world
 : line3
 : Line1Line2Line3
+
+*** Const keyword
+- In cpp, const is actually a loose term. It is just a promise to not modify something however, like with the nature of promises, it can be broken.
+- Use cases of const.
+- ~const varname or const type* varname~
+   in such cases, it will be illegal to change the *value* pointed by the pointer/variable. but it is actually possible to entirely change /where/ the pointer actually points to.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  int main(){
+    const int MAX_AGE = 19;
+    const int* a = new int;
+
+    // *a = 3 // Not allowed
+    a = (int*)&MAX_AGE; // Allowed since the pointer itself isn't constant
+    std::cout << *a << std::endl;
+    }
+#+end_src
+
+#+RESULTS:
+: 19
+
+- ~type* const varname~
+   Here you can freely change the value pointed by the pointer, but cannot change where the pointer points to.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  int main(){
+    const int MAX_AGE = 19;
+    int* const a = new int;
+
+    *a = 3; // Allowed, changing the value
+    // a = (int*)&MAX_AGE; // Not Allowed
+    std::cout << *a << std::endl;
+    }
+#+end_src
+
+#+RESULTS:
+: 3
+
+- Confusing order  ~const type const * const varname~
+Actually ~const int* name~ and ~int const* name~ are exactly the same. Remeber the difference is with if const is written before or after the asterisk.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  int main(){
+    const int MAX_AGE = 19;
+
+    // same as const int* a
+    int const* a = new int;
+    a = (int*)&MAX_AGE; // Allowed for 'a'
+    // *a = 3; Not Allowed
+
+    int* const b = new int;
+    *b = 3; // Allowed, changing the value
+    // b = (int*)&MAX_AGE; Not Allowed
+
+    int const* const c = new int; // same as const int* const c
+    // *c = 3; // Not Allowed
+    // c = (int*)&MAX_AGE; // Not Allowed
+
+    std::cout << *a << "\n" << *b << std::endl;
+    }
+#+end_src
+
+#+RESULTS:
+: 19
+: 3
+
+- Const after function parenthesis before curly braces *inside class only*
+   This specifies that the member function is not going to modify the data of the class, its only reading but not modifying.
+   Example usecase is Getter member functions.
+- One important thing to note here is when you have a function that takes an object by const reference, you can only call the methods of that object that are marked const. This is because you are taking a const ref of object thereby implying you donot have right to change its internal state
+#+begin_src C++ :results output :exports both :includes <iostream>
+    class Test{
+      int x = 3;
+      int* y = new int;
+      public:
+      void hello() const {
+        std::cout << "Hello" <<x <<std::endl;
+        }
+      void const bye() const {
+        std::cout << "Hello" <<*y <<std::endl;
+        }
+      const int* const get_y() const { // A const get_y func returning const * to a const int
+        *y = 4;
+        std::cout << "Hello" <<*y <<std::endl;
+        return y;
+        }
+      };
+  int main(){Test t; t.hello(); t.bye(); t.get_y();}
+
+#+end_src
+
+#+RESULTS:
+: Hello3
+: Hello0
+: Hello4
+
+- When you mark a class method as const, you can't change/modify class internal variables. If you really really need to though, cpp has yet another keyword called mutable, when you declare any variable as ~mutable type varname~ you can modify them even inside const member functions.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Test{
+      mutable int x = 3;
+      public:
+      void hello() const {
+        x = 100;
+        std::cout << "Hello" <<x <<std::endl;
+      }
+  };
+  int main(){Test t; t.hello();}
+#+end_src
+
+#+RESULTS:
+: Hello100
