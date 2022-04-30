@@ -38,6 +38,8 @@ Sources:
 - [[#createinstantiate-objects][Create/instantiate objects]]
 - [[#the-new-keyword][The New Keyword]]
 - [[#implicit-conversion-and-explicit-keyword][Implicit conversion and Explicit keyword]]
+- [[#operator-and-operator-overloading][Operator and Operator Overloading]]
+- [[#this-keyword][this keyword]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1484,6 +1486,24 @@ This creates two objects, one of which is discarded automatically.
 #+RESULTS:
 : Created with 9
 
+- Another functional difference is with constructor argument having same name as internal class member variables.
+- It is often difficult and counter-productive to write a different name just because a member variable of same name already exists.
+- Member initializer list makes it possible to have the same name in constructor arguments with no problems.
+#+begin_src C++ :results output :exports code :includes <iostream>
+  class Test{
+    int x,y;
+    public:
+      Test(int x, int y)
+        : x(x), y(y)
+      {
+        // Doing this is not allowed both x are same and refer to argument var
+        // x = x;
+      }
+  };
+#+end_src
+
+- Note, that there is also another solution to the given problem beside using member initializer list, It's called the =this= keyword which is a separate topic.
+
 *** Ternary Operators
 - If statement compressed version. Kinda like lambda for conditionals.
 #+begin_src C++ :results output :exports both :includes <iostream>
@@ -1607,8 +1627,10 @@ This creates two objects, one of which is discarded automatically.
     - ~int* b = new(a) int;~
 
 *** Implicit conversion and Explicit keyword
- - This part is where insanity starts to fade in, you finally get what others mean by cpp being a clusterfuck.
-- Any way lets talk about implicit conversion
+#+begin_quote
+This part is where insanity starts to fade in, you finally get what others mean by cpp being a clusterfuck.
+#+end_quote
+- Anyway, lets talk about implicit conversion
 - Let's say you've got a class with a constructor that takes in a int.
 - You can now say ~Class varname = 3~ and a varname object gets initialized passing the int 3 to class's constructor
 - See, varname is of type =Class= and =3= is of type =int=, obiously we can't assign them directly so, =cpp= assumes in your place and does the work of calling Class constructor with 3 and assigning the resultant object to =varname=
@@ -1624,8 +1646,7 @@ This creates two objects, one of which is discarded automatically.
  }
 #+end_src
 
-- Oh yeah, this means any function that takes in an object of type ~Test~ as its argument can be given a int and yes cpp will assume and do extra shit for you convert that 3 to a ~Test~ object and pass to a function. Oh! for christ sake.
-- I DONOT WANT TO WRITE AN EXAMPLE CODE BLOCK OF THAT.
+- Oh yeah, this means any function that takes in an object of type ~Test~ as its argument can be given a int and yes cpp will assume and do extra shit for you and convert that =3= to a ~Test~ object and pass it to a function. Oh! for christ sake.
 #+begin_src C++ :results output :exports both :includes <iostream>
   class Test{
      public:
@@ -1652,3 +1673,63 @@ This creates two objects, one of which is discarded automatically.
 - eg. ~explicit Test(){}~ instead of just ~Test(){}~
 
  - Not much help, =explicit= is not much used. Just Know that implicit conversion exists and pray that'll never haunt you.
+
+*** Operator and Operator Overloading
+- There are many operators beside arithmetic ones.
+- ==<<== used in =cout=, =*= dereference operator, =&= ampersand operator, =->= angular operator,
+- Also =new= and =delete= are also operators.
+- similarly, =,= (comma) and =(= (parenthesis) are also operators.
+
+- Defining and changing the behaviour of such operators is called operator overloading.
+- Operators under the hood like =+=, =-= are just functions, so it makes sense to be able to write function named =+=.
+- However, misuse of these feature can bring major headache to your code.
+- Always make sure your overload of any operator is natural, intuitive and makes sense. And nobody has to look at the definition code to figure out what vodoo magic it does.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  struct Vector2{
+    float x,y;
+    Vector2(float x, float y): x(x), y(y) {}
+    Vector2 operator +(const Vector2& other) const{
+      return Vector2(x + other.x, y + other.y);
+    }
+    Vector2 Add(const Vector2& other) const{
+      return operator+(other);
+    }
+  };
+
+  std::ostream& operator<<(std::ostream& stream, const Vector2& other){
+    stream << other.x << ", " << other.y;
+    return stream;
+  }
+
+  int main(){
+    Vector2 v1(1,2);
+    Vector2 v2(3,4);
+    Vector2 v3 = v1.Add(v2) + v2;
+    std::cout << "Sum " << v3.x << " " << v3.y <<std::endl;
+    std::cout << "Result Vector " << v3 <<std::endl;
+  }
+#+end_src
+
+#+RESULTS:
+: Sum 7 10
+: Result Vector 7, 10
+
+*** this keyword
+- A keyword available inside a member function. (method of class)
+- Refers to the current instance, the exact object currently running the function.
+- similar to =self= in python and =this= in javascript.
+- The =this= keyword also helps in initialization of variables during constructor call if the constructor args and member vars have same name.
+- However, note that in a =const= member function, =this= will point to =const Entity= object
+- It is also very useful in case when we want to call an external function that takes current object as parameter. Just pass =this=.
+#+begin_src C++ :results output :exports code :includes <iostream>
+  class Test{
+    int x,y;
+    public:
+    Test(int x, int y){
+      this->x = x; // remove the ambiguity
+      this->y = x; // embrace the 'this' keyword.
+    }
+  };
+#+end_src
+
+- It is also a very good idea to prefix member variables and methods with =m_= prefix. Just to remove ambiguity rather than using this everywhere to do the same. i.e using =this= to remove ambiguity of variables with same name isn't very common.
