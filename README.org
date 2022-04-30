@@ -37,6 +37,7 @@ Sources:
 - [[#ternary-operators][Ternary Operators]]
 - [[#createinstantiate-objects][Create/instantiate objects]]
 - [[#the-new-keyword][The New Keyword]]
+- [[#implicit-conversion-and-explicit-keyword][Implicit conversion and Explicit keyword]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1533,10 +1534,10 @@ This creates two objects, one of which is discarded automatically.
 #+begin_src C++ :results output :exports both :includes <iostream>
   class Test{
     int i;
-  public:
-    Test():i(0){}
-    Test(int x):i(x){}
-    ~Test(){std::cout << i << " Got destoyed" << std::endl;}
+    public:
+      Test():i(0){}
+      Test(int x):i(x){}
+      ~Test(){std::cout << i << " Got destoyed" << std::endl;}
   };
 
   int main(){
@@ -1604,3 +1605,50 @@ This creates two objects, one of which is discarded automatically.
  - =new= can also be given a pointer to specify exactly where in heap; to allocate the memory
     - ~int* a = new int;~
     - ~int* b = new(a) int;~
+
+*** Implicit conversion and Explicit keyword
+ - This part is where insanity starts to fade in, you finally get what others mean by cpp being a clusterfuck.
+- Any way lets talk about implicit conversion
+- Let's say you've got a class with a constructor that takes in a int.
+- You can now say ~Class varname = 3~ and a varname object gets initialized passing the int 3 to class's constructor
+- See, varname is of type =Class= and =3= is of type =int=, obiously we can't assign them directly so, =cpp= assumes in your place and does the work of calling Class constructor with 3 and assigning the resultant object to =varname=
+- This is called implicit conversion.
+#+begin_src C++ :results output :exports code :includes <iostream>
+  class Test{
+    public:
+    Test(int i){}
+  };
+
+  int main(){
+    Test t = 3; // same as Test t(3); or Test t = Test(3);
+ }
+#+end_src
+
+- Oh yeah, this means any function that takes in an object of type ~Test~ as its argument can be given a int and yes cpp will assume and do extra shit for you convert that 3 to a ~Test~ object and pass to a function. Oh! for christ sake.
+- I DONOT WANT TO WRITE AN EXAMPLE CODE BLOCK OF THAT.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Test{
+     public:
+     Test(int i){}
+   };
+
+  void printer(const Test& t){
+    std::cout << "oh no" << std::endl;
+  }
+
+  int main(){
+     Test t = 3; // same as Test t(3); or Test t = Test(3);
+     printer(2);
+  }
+
+#+end_src
+
+#+RESULTS:
+: oh no
+
+*Enters The Explicit Keyword*
+- =explicit= is a keyword in cpp that disables all this magic to keep things sane.
+- While defining a constructor you can use the =explicit= keyword.
+- eg. ~explicit Test(){}~ instead of just ~Test(){}~
+
+ - Not much help, =explicit= is not much used. Just Know that implicit conversion exists and pray that'll never haunt you.
