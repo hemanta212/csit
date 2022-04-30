@@ -34,6 +34,8 @@ Sources:
 - [[#const-keyword][Const keyword]]
 - [[#mutable][Mutable]]
 - [[#member-initializer-list][Member Initializer List]]
+- [[#ternary-operators][Ternary Operators]]
+- [[#createinstantiate-objects][Create/instantiate objects]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1473,3 +1475,84 @@ This creates two objects, one of which is discarded automatically.
 
 #+RESULTS:
 : Created with 9
+
+*** Ternary Operators
+- If statement compressed version. Kinda like lambda for conditionals.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  int main(){
+    int a = 5;
+    const char* b = a%2==0? "even" : "odd";
+    std::cout << b << std::endl;
+    }
+#+end_src
+
+#+RESULTS:
+: odd
+
+- Argument passing to function
+#+begin_src C++ :results output :exports both :includes <iostream>
+  void temp(const char* x){
+    std::cout << "i is " << x << std::endl;
+    }
+    int main(){
+      int i = 5;
+      temp(i%2 == 0? "even" : "odd");
+      }
+#+end_src
+
+#+RESULTS:
+: i is odd
+
+- Nesting ternary operators is also possible.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  int main(){
+    int a = 5;
+    const char* b = a%2==0? "even" :
+                      a==5? "five" :
+                            "odd";
+    std::cout << b << std::endl;
+    }
+#+end_src
+
+#+RESULTS:
+: five
+
+*** Create/instantiate objects
+- Unless defined as ~static~ every class needs to be instantiated to objects.
+- One major factor is where the object is instantiated ? heap part of memory or the stack part.
+- By default an object is allocated memory in the stack. The lifetime of that object is now managed automatically.
+- Whenever, the scope the object was defined in, gets finished, the object is auto destroyed.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Test{
+   int i;
+   public:
+    Test():i(0){}
+    Test(int x):i(x){}
+    ~Test(){std::cout << i << " Got destoyed" << std::endl;}
+  };
+  int main(){
+    {
+      // All are equivalent and will call Test with default constructor
+      Test t;
+      Test t2(1);
+      Test t3 = Test(2);
+    }
+    return 0;
+    }
+#+end_src
+
+#+RESULTS:
+: 2 Got destoyed
+: 1 Got destoyed
+: 0 Got destoyed
+
+- TIP: ~Test t()~ is actually an ambiguous since it could be interpreted as function declaration, however ~Test t(1)~ (with argument) removes the ambiguity and thus works.
+
+- This is the recommended way to create an object, do not prefer the other method unless you're limited by this method, i.e need to access the objects even after the scope where they were defined, ended.
+
+- Other option, using ~new~ keyword will also create a new object but the objects live in the heap memory
+- Also the ~new~ keyword will give you a pointer to the starting memory location of where the objects was stored
+- The syntax is ~Test* test = new Test();~
+- Allocation on heap is slower, you need to manually free it afterwards to prevent memory leakage.
+- *Memory leakage* is the problem where your program takes memory after memory for storing objects in heap but since it's never cleared the memory you program takes increases till your system gets overwhelm. You program may crash, fail, or entire system will be affected.
+- Calling ~delete objname~ or ~delete test~ will perform manual deletion of objects stored in heap.
