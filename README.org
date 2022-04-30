@@ -36,6 +36,7 @@ Sources:
 - [[#member-initializer-list][Member Initializer List]]
 - [[#ternary-operators][Ternary Operators]]
 - [[#createinstantiate-objects][Create/instantiate objects]]
+- [[#the-new-keyword][The New Keyword]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1556,3 +1557,42 @@ This creates two objects, one of which is discarded automatically.
 - Allocation on heap is slower, you need to manually free it afterwards to prevent memory leakage.
 - *Memory leakage* is the problem where your program takes memory after memory for storing objects in heap but since it's never cleared the memory you program takes increases till your system gets overwhelm. You program may crash, fail, or entire system will be affected.
 - Calling ~delete objname~ or ~delete test~ will perform manual deletion of objects stored in heap.
+
+*** The New Keyword
+- Allocates memory for an object in the heap.
+- ~new type~ is the syntax.
+- =New= determines the necessary size of the type in bytes.
+- Then =New= asks the =OS or c standard lib= for the memory
+-  Then that ~memory layer~ looks in the =heap= to find contiguous memory of the given size
+- Once found, new gets the pointer to that address of the first block and returns it.
+- Depending upon the size of memory that we need to allocate on heap, the time to search increases.
+- The free contiguous block is searched with the help of a list called =free list= that mantains the free bytes.
+- Examples:
+  - Allocating 4 bytes of memory for integer.
+     ~int* a = new int;~
+  - Allocating memory for array of 50 ints. (200 bytes)
+     ~int* a = new int[50];~
+  - The same can be done with custom classes.
+     ~Class* c = new Class();~
+     ~Class* c = new Class[50];~
+
+- Note that =new= also takes care of calling the constructor of the object while also allocating memory for it.
+
+- At the fundamental level, =new= is an operator. Thus, you can overload it.
+- =new= operator will find the size to be allocated and then calls the underlying =malloc()= function in =C=.
+- The =malloc= function takes the size and returns a =void*= which is casted back into required type.
+- So, the following code are kinda equivalent,
+~Entity* e = new Entity();~
+~Entity* e = (Entity*) malloc(sizeof(Entity));~
+- The only difference being that =new= will also /call the constructor/ which =malloc= doesn't.
+
+- when using =new= you must always accompany with =delete=.
+     ~int* a = new int;~
+     ~delete a;~
+    - Also in case of array, you have to call =delete= with =[]= brackets.
+     ~int* a = new int[50];~
+     ~delete[] a;~
+
+ - =new= can also be given a pointer to specify exactly where in heap; to allocate the memory
+~int* a = new int;~
+~int* b = new(a) int;~
