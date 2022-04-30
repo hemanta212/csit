@@ -1193,6 +1193,7 @@ Appending with ~+~ operator works because the one of operand is a proper string 
 #+begin_src C++ :results output :exports code :includes <iostream>
   int main(){
     using namespace std::string_literals;
+
     std::string name = "hello"s + " world!";
     std::wstring name1 = L"hello"s + L" world!";
     std::u32string name2 = U"hello"s + U" world!";
@@ -1287,7 +1288,7 @@ Actually ~const int* name~ and ~int const* name~ are exactly the same. Remeber t
    Example usecase is Getter member functions.
 - One important thing to note here is when you have a function that takes an object by const reference, you can only call the methods of that object that are marked const. This is because you are taking a const ref of object thereby implying you donot have right to change its internal state
 #+begin_src C++ :results output :exports both :includes <iostream>
-    class Test{
+  class Test{
       int x = 3;
       int* y = new int;
       public:
@@ -1298,13 +1299,13 @@ Actually ~const int* name~ and ~int const* name~ are exactly the same. Remeber t
         std::cout << "Hello" <<*y <<std::endl;
         }
       const int* const get_y() const { // A const get_y func returning const * to a const int
-        *y = 4;
+        ,*y = 4;
         std::cout << "Hello" <<*y <<std::endl;
         return y;
         }
-      };
-  int main(){Test t; t.hello(); t.bye(); t.get_y();}
+  };
 
+  int main(){Test t; t.hello(); t.bye(); t.get_y();}
 #+end_src
 
 #+RESULTS:
@@ -1317,11 +1318,12 @@ Actually ~const int* name~ and ~int const* name~ are exactly the same. Remeber t
   class Test{
       mutable int x = 3;
       public:
-      void hello() const {
-        x = 100;
-        std::cout << "Hello" <<x <<std::endl;
-      }
+        void hello() const {
+          x = 100;
+          std::cout << "Hello" <<x <<std::endl;
+        }
   };
+
   int main(){Test t; t.hello();}
 #+end_src
 
@@ -1343,7 +1345,7 @@ but both are the same as explained in the video.
 Note that, ~const int * A~ /does not/ mean that A actually points to a =const variable=. It just means that the compiler /will not allow/ you to modify the *pointed value through A*.
 
 for instance :
-#+begin_src C++ :results output :exports both
+#+begin_src C++ :results output :exports code
 int val = 10;
 int const * a = &val;
 // *a = 30; //this will NOT compile, you're not allowed to modify "val" through "a".
@@ -1351,8 +1353,7 @@ val = 30; //this will compile.
 #+end_src
 
 Same with :
-
-#+begin_src C++ :results output :exports both
+#+begin_src C++ :results output :exports code
 int val = 10;
 int val2 = 30;
 const int * const A = &val;
@@ -1366,15 +1367,16 @@ val = 30; //this will compile, val is not constant
 - As stated earlier, in ~const~ notes, any class property marked mutable can be modified in ~const methods~ as well.
 #+begin_src C++ :results output :exports both :includes <iostream>
   class Test{
-    int a = 45;
-    mutable int debugCounter = 0;
-    public:
-      const int& getA() const {
-        debugCounter += 1;
-        return a;
-     }
-};
-int main() {Test t; const int& a = t.getA(); std::cout << a; }
+      int a = 45;
+      mutable int debugCounter = 0;
+      public:
+        const int& getA() const {
+          debugCounter += 1;
+          return a;
+       }
+  };
+
+  int main() {Test t; const int& a = t.getA(); std::cout << a; }
 #+end_src
 
 #+RESULTS:
@@ -1437,18 +1439,20 @@ When we state class members in private/public definition, we're are calling the 
 When we actually initlialize them later in our constructor, we again call the objects constructor with our arguments.
 This creates two objects, one of which is discarded automatically.
 #+begin_src C++ :results output :exports both :includes <iostream>
-   class Helper{
-   public:
-     Helper(){std::cout << "Created empty" <<std::endl;}
-     Helper(int x){std::cout << "Created with " << x << std::endl;}
-   };
-   class Test{
-     Helper h; // calls Helper empty constructor
-     public:
-     Test(){
-       h = Helper(9); // we are here now initializing h to Helper(9)
-     }
+  class Helper{
+    public:
+      Helper(){std::cout << "Created empty" <<std::endl;}
+      Helper(int x){std::cout << "Created with " << x << std::endl;}
   };
+
+  class Test{
+    Helper h; // calls Helper empty constructor
+    public:
+      Test(){
+        h = Helper(9); // we are here now initializing h to Helper(9)
+      }
+  };
+
   int main(){Test t;}
 #+end_src
 
@@ -1459,19 +1463,21 @@ This creates two objects, one of which is discarded automatically.
 - This causes unnecessary wastage and performance overload. Thus to create an object only once we use memeber initializer list.
 - However, incase of primitive types like ~int~, it wont initialize until we explicity do so but still in string and custom datatype we are creating two items.
 #+begin_src C++ :results output :exports both :includes <iostream>
-       class Helper{
-       public:
-         Helper(){std::cout << "Created empty" <<std::endl;}
-         Helper(int x){std::cout << "Created with " << x << std::endl;}
-       };
-       class Test{
-         Helper h;
-         public:
-         Test()
-           :h(9)
-         {}
-      };
-      int main(){Test t;}
+  class Helper{
+    public:
+      Helper(){std::cout << "Created empty" <<std::endl;}
+      Helper(int x){std::cout << "Created with " << x << std::endl;}
+  };
+
+  class Test{
+    Helper h;
+    public:
+      Test()
+        :h(9)
+      {}
+  };
+
+  int main(){Test t;}
 #+end_src
 
 #+RESULTS:
@@ -1484,7 +1490,7 @@ This creates two objects, one of which is discarded automatically.
     int a = 5;
     const char* b = a%2==0? "even" : "odd";
     std::cout << b << std::endl;
-    }
+  }
 #+end_src
 
 #+RESULTS:
@@ -1494,11 +1500,12 @@ This creates two objects, one of which is discarded automatically.
 #+begin_src C++ :results output :exports both :includes <iostream>
   void temp(const char* x){
     std::cout << "i is " << x << std::endl;
-    }
-    int main(){
-      int i = 5;
-      temp(i%2 == 0? "even" : "odd");
-      }
+  }
+
+  int main(){
+    int i = 5;
+    temp(i%2 == 0? "even" : "odd");
+  }
 #+end_src
 
 #+RESULTS:
@@ -1525,12 +1532,13 @@ This creates two objects, one of which is discarded automatically.
 - Whenever, the scope the object was defined in, gets finished, the object is auto destroyed.
 #+begin_src C++ :results output :exports both :includes <iostream>
   class Test{
-   int i;
-   public:
+    int i;
+  public:
     Test():i(0){}
     Test(int x):i(x){}
     ~Test(){std::cout << i << " Got destoyed" << std::endl;}
   };
+
   int main(){
     {
       // All are equivalent and will call Test with default constructor
@@ -1539,7 +1547,7 @@ This creates two objects, one of which is discarded automatically.
       Test t3 = Test(2);
     }
     return 0;
-    }
+  }
 #+end_src
 
 #+RESULTS:
@@ -1564,17 +1572,17 @@ This creates two objects, one of which is discarded automatically.
 - =New= determines the necessary size of the type in bytes.
 - Then =New= asks the =OS or c standard lib= for the memory
 -  Then that ~memory layer~ looks in the =heap= to find contiguous memory of the given size
-- Once found, new gets the pointer to that address of the first block and returns it.
+- Once found, =new= gets the pointer to that address of the first block and returns it.
 - Depending upon the size of memory that we need to allocate on heap, the time to search increases.
 - The free contiguous block is searched with the help of a list called =free list= that mantains the free bytes.
 - Examples:
   - Allocating 4 bytes of memory for integer.
-     ~int* a = new int;~
+     - ~int* a = new int;~
   - Allocating memory for array of 50 ints. (200 bytes)
-     ~int* a = new int[50];~
+     - ~int* a = new int[50];~
   - The same can be done with custom classes.
-     ~Class* c = new Class();~
-     ~Class* c = new Class[50];~
+     - ~Class* c = new Class();~
+     - ~Class* c = new Class[50];~
 
 - Note that =new= also takes care of calling the constructor of the object while also allocating memory for it.
 
@@ -1582,17 +1590,17 @@ This creates two objects, one of which is discarded automatically.
 - =new= operator will find the size to be allocated and then calls the underlying =malloc()= function in =C=.
 - The =malloc= function takes the size and returns a =void*= which is casted back into required type.
 - So, the following code are kinda equivalent,
-~Entity* e = new Entity();~
-~Entity* e = (Entity*) malloc(sizeof(Entity));~
+  - ~Entity* e = new Entity();~
+  - ~Entity* e = (Entity*) malloc(sizeof(Entity));~
 - The only difference being that =new= will also /call the constructor/ which =malloc= doesn't.
 
 - when using =new= you must always accompany with =delete=.
-     ~int* a = new int;~
-     ~delete a;~
+     - ~int* a = new int;~
+     - ~delete a;~
     - Also in case of array, you have to call =delete= with =[]= brackets.
-     ~int* a = new int[50];~
-     ~delete[] a;~
+     - ~int* a = new int[50];~
+     - ~delete[] a;~
 
  - =new= can also be given a pointer to specify exactly where in heap; to allocate the memory
-~int* a = new int;~
-~int* b = new(a) int;~
+    - ~int* a = new int;~
+    - ~int* b = new(a) int;~
