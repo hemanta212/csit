@@ -40,6 +40,8 @@ Sources:
 - [[#implicit-conversion-and-explicit-keyword][Implicit conversion and Explicit keyword]]
 - [[#operator-and-operator-overloading][Operator and Operator Overloading]]
 - [[#this-keyword][this keyword]]
+- [[#object-lifetime-stackscope-lifetimes][Object Lifetime (Stack/Scope Lifetimes)]]
+- [[#smart-pointers][Smart Pointers]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1676,9 +1678,9 @@ This part is where insanity starts to fade in, you finally get what others mean 
 
 *** Operator and Operator Overloading
 - There are many operators beside arithmetic ones.
-- ==<<== used in =cout=, =*= dereference operator, =&= ampersand operator, =->= angular operator,
+- =<<= used in =cout=, =*= dereference operator, =&= ampersand operator, =->= angular operator,
 - Also =new= and =delete= are also operators.
-- similarly, =,= (comma) and =(= (parenthesis) are also operators.
+- similarly, comma (,) and =(= (parenthesis) are also operators.
 
 - Defining and changing the behaviour of such operators is called operator overloading.
 - Operators under the hood like =+=, =-= are just functions, so it makes sense to be able to write function named =+=.
@@ -1733,3 +1735,147 @@ This part is where insanity starts to fade in, you finally get what others mean 
 #+end_src
 
 - It is also a very good idea to prefix member variables and methods with =m_= prefix. Just to remove ambiguity rather than using this everywhere to do the same. i.e using =this= to remove ambiguity of variables with same name isn't very common.
+
+*** Object Lifetime (Stack/Scope Lifetimes)
+- We already know, an object created on the stack gets destroyed as soon as it goes out of scope.
+- We can use =new= keyword to allocate objects on the heap, but we have to manually call =delete= to free the memory.
+- We can use the fact that stack object gets destroyed once out of scope to make locks and scoped pointers
+#+begin_src C++ :results output :exports both :includes <iostream>
+  class Test{
+      public:
+      Test(){std::cout << "Test is Created" << std::endl;}
+      ~Test(){std::cout << "Test is Destroyed" << std::endl;}
+  };
+
+  class ScopedPtr{
+    Test* t;
+    public:
+    ScopedPtr(Test* t): t(t){}
+    ~ScopedPtr(){delete t;}
+  };
+
+  int main(){
+     // a simple scope
+    {
+       ScopedPtr a = new Test(); // implicit conversion at play here
+    }
+  return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Test is Created
+: Test is Destroyed
+
+- There you go our own smart pointer, that automatically calls new and delete using the automatic stack destruction feature.
+
+*** Smart Pointers
+- Automating heap allocation and freeing (calling =new= and =delete=) is the core goal of smart pointers.
+- There are various ways/angle of approaching this problem depending on the domain space.
+- You should always try to use it as much as you can to avoid tracking delete calls.
+- They however, do have bit of an overhead, but remember, implementing your own memory management will have too.
+- Prefer =unique_ptr= more over others.
+**** Unique Pointer
+- =unique_ptr= is scoped pointer, it just emulates the stack arrays in destruction.
+- =unique_ptr= is called unique because it cannot be copied as any one of pointer going out of scope would free the memory the copied group of ptrs were pointing.
+- Thus =unique_ptr= is used when you want a single instance and scoped type of ptr.
+- In =unique_ptr=, the constructor is set to explicit [[*Implicit conversion and Explicit keyword][(learn more),]] so we cannot use assignment (~=~) to instantiate a ==unique_ptr=.
+- Similarly, the correct way to initialize is to use the wrapper ~std::make_unique<Type>();~.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #include <memory>
+
+  class Test{
+      public:
+      Test(){std::cout << "Test is Created" << std::endl;}
+      ~Test(){std::cout << "Test is Destroyed" << std::endl;}
+  };
+
+  int main(){
+    {
+       // std::unique_ptr<Test> test = new Test(); // INVALID
+       std::unique_ptr<Test> test(new Test());
+       std::unique_ptr<Test> test1 = std::make_unique<Test>();
+    }
+  return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Test is Created
+: Test is Created
+: Test is Destroyed
+: Test is Destroyed
+
+- Similarly, copying a unique pointer is not possible as the =copy constructor= and =copy assignment operator= are both marked *deleted* in stdlib declaration.
+#+begin_src C++ :results output :exports code
+// member function inside unique pointer class
+class unique_ptr{
+  unique_ptr(const _Myt&) = delete;
+  _Myt& operator=(const _Myt&) = delete;
+};
+#+end_src
+
+**** Shared Pointer
+- =shared_ptr= is a scoped pointer that can be copied and it keeps track of all copies via reference count.
+- Everytime a copy of ptr dies, the reference count is decremented until it reaches zero which means the object is destroyed from the heap.
+- A copy of ptr dies when it goes out of scope. So =shared_ptr= is a scoped ptr having the longetivity of outermost scoped ptr copy.
+- There is also ~std::make_shared<Type>();~ to instantiate a ==shared_ptr=, along with the constructor notation similar to =unique_ptr=.
+- However, calling ~new Type();~ is not recommended for shared pointer as shared pointer has to create a control block for ref count, so calling new (creating object) then passing it to shared pointer to make that object again is inefficient.
+- The ~std::make_shared<Type>();~ avoids this by creating both control block and object together once efficiently.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #include <memory>
+
+  class Test{
+  public:
+    Test(){std::cout << "Test is Created" << std::endl;}
+    ~Test(){std::cout << "Test is Destroyed" << std::endl;}
+  };
+
+  int main(){
+    {
+      std::shared_ptr<Test> test;
+      {
+        std::shared_ptr<Test> test1 = std::make_shared<Test>();
+        test = test1;
+      }
+      std::cout << "None destroyed yet" << std::endl;
+    }
+    return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Test is Created
+: None destroyed yet
+: Test is Destroyed
+
+**** Weak Pointer
+- =weak_ptr= is used in case you want to hold a reference to an object, but you don't want the =shared_ptr= ref count to track it, thus unnecessarily keeping it alive.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #include <memory>
+
+  class Test{
+  public:
+    Test(){std::cout << "Test is Created" << std::endl;}
+    ~Test(){std::cout << "Test is Destroyed" << std::endl;}
+  };
+
+  int main(){
+    {
+      std::weak_ptr<Test> test;
+      {
+        std::shared_ptr<Test> test1 = std::make_shared<Test>();
+        test = test1;
+      }
+      std::cout << "obj destroyed before weak ptr scope" << std::endl;
+    }
+    return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Test is Created
+: Test is Destroyed
+: obj destroyed before weak ptr scope
+
+- =weak_ptr= doesnot guarentee if the obj is alive, it just stores a reference. So you can ask it if the obj is alive or already destroyed/dead.
