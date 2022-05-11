@@ -43,6 +43,7 @@ Sources:
 - [[#object-lifetime-stackscope-lifetimes][Object Lifetime (Stack/Scope Lifetimes)]]
 - [[#smart-pointers][Smart Pointers]]
 - [[#templates][Templates]]
+- [[#function-pointers][Function pointers]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1777,10 +1778,10 @@ This part is where insanity starts to fade in, you finally get what others mean 
 - They however, do have bit of an overhead, but remember, implementing your own memory management will have too.
 - Prefer =unique_ptr= more over others.
 **** Unique Pointer
-- =unique_ptr= is scoped pointer, it just emulates the stack arrays in destruction.
-- =unique_ptr= is called unique because it cannot be copied as any one of pointer going out of scope would free the memory the copied group of ptrs were pointing.
-- Thus =unique_ptr= is used when you want a single instance and scoped type of ptr.
-- In =unique_ptr=, the constructor is set to explicit [[*Implicit conversion and Explicit keyword][(learn more),]] so we cannot use assignment (~=~) to instantiate a ==unique_ptr=.
+- =unique_ptr= is scoped pointer, it just emulates destruction mechanism of stack objects.
+- =unique_ptr= is called unique because it cannot be copied as any one of pointer going out of scope would free the memory that the copied poiners were pointing at.
+- Thus, =unique_ptr= is used when you want a single instance and stack styled scoped ptr.
+- In =unique_ptr=, the constructor is set to explicit [[*Implicit conversion and Explicit keyword][(learn more),]] so we cannot use assignment (~=~) to instantiate a =unique_ptr=.
 - Similarly, the correct way to initialize is to use the wrapper ~std::make_unique<Type>();~.
 #+begin_src C++ :results output :exports both :includes <iostream>
   #include <memory>
@@ -1820,8 +1821,8 @@ class unique_ptr{
 - =shared_ptr= is a scoped pointer that can be copied and it keeps track of all copies via reference count.
 - Everytime a copy of ptr dies, the reference count is decremented until it reaches zero which means the object is destroyed from the heap.
 - A copy of ptr dies when it goes out of scope. So =shared_ptr= is a scoped ptr having the longetivity of outermost scoped ptr copy.
-- There is also ~std::make_shared<Type>();~ to instantiate a ==shared_ptr=, along with the constructor notation similar to =unique_ptr=.
-- However, calling ~new Type();~ is not recommended for shared pointer as shared pointer has to create a control block for ref count, so calling new (creating object) then passing it to shared pointer to make that object again is inefficient.
+- There is also ~std::make_shared<Type>();~ to instantiate a =shared_ptr=, along with the constructor notation similar to =unique_ptr=.
+- However, calling ~new Type();~ (constructor notation) is not recommended for shared pointer as a shared pointer has to create a control block for ref count, so calling new (creating object) then passing it to shared pointer to make that object again is inefficient.
 - The ~std::make_shared<Type>();~ avoids this by creating both control block and object together once efficiently.
 #+begin_src C++ :results output :exports both :includes <iostream>
   #include <memory>
@@ -1881,12 +1882,10 @@ class unique_ptr{
 
 - =weak_ptr= doesnot guarentee if the obj is alive, it just stores a reference. So you can ask it if the obj is alive or already destroyed/dead.
 
-
-
 *** Templates
 - Template is a way to define a type that can be used to create multiple types.
 - Basically the type is a placeholder that can be replaced with a different type.
-- ~template <typename T>~~ is the syntax for defining T, which can be used instead of Type in function declaration to get function template.
+- ~template <typename T>~ is the syntax for defining T, which can be used instead of Type in function declaration to get function template.
 - A template does not actually *exist* yet, it is constructed when it gets used/called with a given type. So, an uncalled template function *can have* syntactic errors but compile fine.
 - While calling a template function we can explicitly specify the type to be used. This is optional when compiler can deduce the type by itself(by return value or looking at arg passed) but necessary when the compiler can't do so.
 
@@ -1916,17 +1915,17 @@ class unique_ptr{
 #+begin_src C++ :results output :exports both :includes <iostream>
   // template <int M>
   template <typename T, int N>
-    class Array{
-      T m_Array[N];
-    public:
-      int get_size() const{return N;}
+  class Array{
+    T m_Array[N];
+  public:
+    int get_size() const{return N;}
   };
 
-      int main(){
-        Array<std::string, 50> a;
-        std::cout << a.get_size() << std::endl;
-        return 0;
-      }
+  int main(){
+    Array<std::string, 50> a;
+    std::cout << a.get_size() << std::endl;
+    return 0;
+  }
 
 #+end_src
 
@@ -1936,3 +1935,67 @@ class unique_ptr{
 - Eg, logging is common use where we want to log virtually every type without having to overload the function.
 - Try to prefer overloading, because template open doors for everytype through it making it debugging nightmare
 - Don't go and create your own mini language with it though, also called DSL. Don't.
+
+*** Function pointers
+- Code is data, function can be assigned variable, passed around as parameter, returned from a function, listed in an array etc.
+- =function_pointer= is what enables this in languages like C/C++.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  void hello(){
+    std::cout << "hello world!" << std::endl;
+  }
+
+  int main(){
+    auto function = hello; // or &hello (optional because of implicit conversion)
+    std::cout << "Function 'hello' is at "<< function << std::endl;
+    function();
+  }
+#+end_src
+
+#+RESULTS:
+: Function 'hello' is at1
+: hello world!
+
+- =auto= helps us to avoid explicit type declaration. But what is the actual type of func pointer?
+- ~void(*name)();~ is the real type. This is usually defined once using typedef and used everywhere or just use auto.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  void hello(){
+    std::cout << "hello world!" << std::endl;
+  }
+
+  int main(){
+     typedef void(*func_ptr)(//args here);
+     func_ptr function = hello; // or &hello (optional because of implicit conversion)
+    std::cout << "Function 'hello' is at "<< function << std::endl;
+    function();
+  }
+
+#+end_src
+
+#+RESULTS:
+: Function 'hello' is at 1
+: hello world!
+
+**** ForEach implementation
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #include <vector>
+  void print(int val){
+    std::cout << val << std::endl;
+  }
+
+  void forEach(std::vector<int>& values, void(*func)(int)){
+    for(int val: values){
+      func(val);
+    }
+  }
+
+  int main(){
+    std::vector<int> values = {1,2,4};
+    forEach(values, print);
+    return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: 1
+: 2
+: 4
