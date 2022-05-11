@@ -42,6 +42,7 @@ Sources:
 - [[#this-keyword][this keyword]]
 - [[#object-lifetime-stackscope-lifetimes][Object Lifetime (Stack/Scope Lifetimes)]]
 - [[#smart-pointers][Smart Pointers]]
+- [[#templates][Templates]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1879,3 +1880,59 @@ class unique_ptr{
 : obj destroyed before weak ptr scope
 
 - =weak_ptr= doesnot guarentee if the obj is alive, it just stores a reference. So you can ask it if the obj is alive or already destroyed/dead.
+
+
+
+*** Templates
+- Template is a way to define a type that can be used to create multiple types.
+- Basically the type is a placeholder that can be replaced with a different type.
+- ~template <typename T>~~ is the syntax for defining T, which can be used instead of Type in function declaration to get function template.
+- A template does not actually *exist* yet, it is constructed when it gets used/called with a given type. So, an uncalled template function *can have* syntactic errors but compile fine.
+- While calling a template function we can explicitly specify the type to be used. This is optional when compiler can deduce the type by itself(by return value or looking at arg passed) but necessary when the compiler can't do so.
+
+#+begin_src C++ :results output :exports both :includes <iostream>
+  template <typename T>
+  // template <class T> // alternative keyword for typename is class
+  void print(T t){
+    std::cout << t << std::endl;
+  }
+
+  int main(){
+    print(1);
+    print<int>(1);
+    print("Hello");
+    print(1.2);
+    return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: 1
+: 1
+: Hello
+: 1.2
+
+- Templates are not just limited to types, and functions we can create entire classes with templates.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  // template <int M>
+  template <typename T, int N>
+    class Array{
+      T m_Array[N];
+    public:
+      int get_size() const{return N;}
+  };
+
+      int main(){
+        Array<std::string, 50> a;
+        std::cout << a.get_size() << std::endl;
+        return 0;
+      }
+
+#+end_src
+
+#+RESULTS:
+: 50
+
+- Eg, logging is common use where we want to log virtually every type without having to overload the function.
+- Try to prefer overloading, because template open doors for everytype through it making it debugging nightmare
+- Don't go and create your own mini language with it though, also called DSL. Don't.
