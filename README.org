@@ -44,6 +44,9 @@ Sources:
 - [[#smart-pointers][Smart Pointers]]
 - [[#templates][Templates]]
 - [[#function-pointers][Function pointers]]
+- [[#virtual-destructors][Virtual Destructors]]
+- [[#exception-handling][Exception Handling]]
+- [[#file-handling][File Handling]]
 :END:
 
 *** Notes about Compiling and linking
@@ -1963,12 +1966,11 @@ class unique_ptr{
   }
 
   int main(){
-     typedef void(*func_ptr)(//args here);
-     func_ptr function = hello; // or &hello (optional because of implicit conversion)
+    typedef void(*func_ptr)(); //args inside here();
+    func_ptr function = hello; // or &hello (optional because of implicit conversion)
     std::cout << "Function 'hello' is at "<< function << std::endl;
     function();
   }
-
 #+end_src
 
 #+RESULTS:
@@ -1999,3 +2001,284 @@ class unique_ptr{
 : 1
 : 2
 : 4
+
+*** Virtual Destructors
+- You have a base class, you derive another class called 'derived' from that 'base' class.
+- Now, with polymorphism you can assign a pointer of type 'base' to an object of 'derived'
+- In such cases, Cpp calls destructor of only 'base' and doesnot call destructor of 'derived' when that ptr goes out of scope/dies.
+- To ensure all the destructors in the tree are called, we use =virtual=
+#+begin_src C++ :results output :exports both :includes <iostream>
+  using namespace std;
+
+  class base {
+  public:
+    base()
+    { cout << "Constructing base\n"; }
+    virtual ~base()
+    { cout << "Destructing base\n"; }
+  };
+
+  class derived : public base {
+  public:
+    derived()
+    { cout << "Constructing derived\n"; }
+    ~derived()
+    { cout << "Destructing derived\n"; }
+  };
+
+  int main()
+  {
+    derived *d = new derived();
+    base *b = d;
+    delete b;
+  }
+#+end_src
+
+#+RESULTS:
+: Constructing base
+: Constructing derived
+: Destructing derived
+: Destructing base
+
+#+begin_src C++ :results output :exports both :includes <iostream>
+  using namespace std;
+
+  class base {
+  public:
+    base()
+    { cout << "Constructing base\n"; }
+    virtual ~base()
+    { cout << "Destructing base\n"; }
+  };
+
+  class derived : public base {
+  public:
+    derived()
+    { cout << "Constructing derived\n"; }
+    virtual ~derived()
+    { cout << "Destructing derived\n"; }
+  };
+
+  class derivedmore : public derived{
+  public:
+    derivedmore()
+    { cout << "Constructing derivedmore\n"; }
+    ~derivedmore()
+    { cout << "Destructing derivedmore\n"; }
+  };
+
+  int main()
+  {
+    derivedmore *d = new derivedmore();
+    derived *b = d;
+    delete b;
+  }
+
+#+end_src
+
+#+RESULTS:
+: Constructing base
+: Constructing derived
+: Constructing derivedmore
+: Destructing derivedmore
+: Destructing derived
+: Destructing base
+
+*** Exception Handling
+- Example when =throw= is inside the =try= block
+#+begin_src C++ :results output :exports both :includes <iostream>
+  int main(){
+    int a = 0;
+    try{
+      if(a!= 0){
+        std::cout << "10/a = " << 10/a << std::endl;
+      }else{
+        throw(a);
+      }
+    }catch(int x){
+      std::cout << "Error: x = " << x << std::endl;
+    }
+  }
+#+end_src
+
+#+RESULTS:
+: Error: x = 0
+
+- Example when exception is thrown by a =function= called inside a =try= block.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  void func(int a){
+    if(a!= 0){
+      std::cout << "10/a = " << 10/a << std::endl;
+    }else{
+      throw(a);
+    }
+  }
+
+  int main(){
+    int a = 0;
+    try{
+      func(a);
+    }catch(int x){
+      std::cout << "Error: x = " << x << std::endl;
+    }
+  }
+#+end_src
+
+#+RESULTS:
+: Error: x = 0
+
+- Multiple catches and rethrowing an exception
+#+begin_src C++ :results output :exports both :includes <iostream>
+  using namespace std;
+
+  void test(int x)
+  {
+    try
+      {
+        if (x==0) throw x;
+        if (x==-1) throw 'x';
+        if (x==1) throw 1.0;
+        if (x==2) throw 3.0f;
+      }
+    catch (float x)
+      {
+        cout << "Caught an float exception x = " << x << endl;
+        throw;
+      }
+    catch (...)
+      {
+        cout << "Caught an exception \n";
+      }
+  }
+  int main()
+  {
+    test(-1);
+    test(0);
+    test(1);
+
+    try{
+      test(2);
+    }catch(float){
+        cout << "Catched the rethrown exception";
+      }
+    return 0;
+  }
+#+end_src
+
+#+RESULTS:
+: Caught an exception
+: Caught an exception
+: Caught an exception
+: Caught an float exception x = 3
+: Catched the rethrown exception
+
+*** File Handling
+#+begin_src shell :exports none
+   echo "-- hello  is a file --\nHow are you\t there\n" > /tmp/cpp-hello-file.txt
+#+end_src
+
+#+RESULTS:
+
+- The file handling functions are defined in the header ~<fstream>~.
+- File can be read into a defined string through extraction operator, however remember the extraction operator only support words since it stops when encounter whitespace.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #import <fstream>
+  using namespace std;
+  int main(){
+    ifstream fin;
+    char str[100];
+    fin.open("/tmp/cpp-hello-file.txt");
+    while(!fin.eof()){ // or while(fin) also works
+      fin >> str; // word by word
+      cout << str << " "; // how to separate each word (through space)
+    }
+  }
+#+end_src
+
+#+RESULTS:
+: -- hello is a file -- How are you there there
+
+- ~fin.get~ is char by char getter of the file stream.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #import <fstream>
+  using namespace std;
+  int main(){
+    ifstream fin;
+    char str[100];
+    char ch;
+    fin.open("/tmp/cpp-hello-file.txt");
+    while(!fin.eof()){ // or while(fin) also works
+      fin.get(ch);
+      cout<<ch;
+    }
+  }
+#+end_src
+
+#+RESULTS:
+: -- hello  is a file --
+: How are you	 there
+:
+:
+
+
+- ~getline(dest, size)~ can also be used.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #import <fstream>
+  using namespace std;
+  int main(){
+    ifstream fin;
+    char str[100];
+    char ch;
+    fin.open("/tmp/cpp-hello-file.txt");
+    while(fin){ // or while(fin) also works
+      fin.getline(str, 99);
+      cout << str << "\n"; // how to separate each line (through newline)
+    }
+  }
+#+end_src
+
+#+RESULTS:
+: -- hello  is a file --
+: How are you	 there
+:
+:
+
+**** Objects read write
+- =read()= and =write()= function are available as well.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #include <fstream>
+
+  class Test{
+    int a = 4;
+  public:
+    void get_a(){std::cout << a << std::endl;}
+  };
+
+  int main(){
+    Test t;
+
+    std::ofstream fout;
+    fout.open("/tmp/cpp-fout-class");
+    fout.write((char*)&t, sizeof(Test));
+    fout.close();
+
+    Test t2;
+    std::ifstream fin;
+    fin.open("/tmp/cpp-fout-class");
+    fin.read((char*)&t2, sizeof(Test));
+    fin.close();
+    t2.get_a();
+  }
+#+end_src
+
+#+RESULTS:
+: 4
+
+- What does the written file look like?
+
+#+begin_src shell :exports both
+   cat /tmp/cpp-fout-class
+#+end_src
+
+#+RESULTS:
+:    
