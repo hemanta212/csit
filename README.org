@@ -2273,12 +2273,3 @@ class unique_ptr{
 
 #+RESULTS:
 : 4
-
-- What does the written file look like?
-
-#+begin_src shell :exports both
-   cat /tmp/cpp-fout-class
-#+end_src
-
-#+RESULTS:
-:    
