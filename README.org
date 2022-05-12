@@ -2179,6 +2179,7 @@ class unique_ptr{
 
 #+RESULTS:
 
+**** Extraction Operator
 - The file handling functions are defined in the header ~<fstream>~.
 - File can be read into a defined string through extraction operator, however remember the extraction operator only support words since it stops when encounter whitespace.
 #+begin_src C++ :results output :exports both :includes <iostream>
@@ -2198,10 +2199,13 @@ class unique_ptr{
 #+RESULTS:
 : -- hello is a file -- How are you there there
 
+**** .get(char)
 - ~fin.get~ is char by char getter of the file stream.
 #+begin_src C++ :results output :exports both :includes <iostream>
   #import <fstream>
+
   using namespace std;
+
   int main(){
     ifstream fin;
     char str[100];
@@ -2220,11 +2224,13 @@ class unique_ptr{
 :
 :
 
-
+**** .getline(toStr, size)
 - ~getline(dest, size)~ can also be used.
 #+begin_src C++ :results output :exports both :includes <iostream>
   #import <fstream>
+
   using namespace std;
+
   int main(){
     ifstream fin;
     char str[100];
@@ -2273,3 +2279,33 @@ class unique_ptr{
 
 #+RESULTS:
 : 4
+
+**** Random Access in Files
+*seekg* : ~seekg(bytes, ios::cur/beg/end)~
+- Moves the file reading pointer forward and backward.
+*seekp* ~seekp(bytes, ios::cur/beg/end)~
+- Moves the writing pointer forward and backward.
+*tellp* ~tellp()~
+- Returns distance of writing pointer from beginnning in bytes.
+*tellg* ~tellg()~
+- Returns distance of writing pointer from beginnning in bytes.
+#+begin_src C++ :results output :exports both :includes <iostream>
+  #include <fstream>
+
+  class Test{};
+
+  int main(){
+    Test t;
+    std::ofstream fout;
+    fout.open("/tmp/cpp-fout-class");
+    fout.write((char*)&t, sizeof(Test));
+    fout.write((char*)&t, sizeof(Test));
+    int end = fout.tellp();
+    fout.close();
+    std::cout << "Wrote " << end/sizeof(Test) << " objects" <<std::endl;
+  }
+
+#+end_src
+
+#+RESULTS:
+: Wrote 2 objects
