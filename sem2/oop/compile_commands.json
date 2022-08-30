@@ -1,7 +1,7 @@
 [
     {
         "arguments": [
-            "clang",
+            "g++",
             "-c",
             "-ggdb3",
             "-O0",
@@ -10,14 +10,11 @@
             "-Wextra",
             "-Wshadow",
             "-pedantic-errors",
-            "-std=c11",
-            "-lm",
-            "-ledit",
             "-o",
             "temp",
-            "temp.c"
+            "temp.cpp"
         ],
         "directory": "/home/pykancha/dev/csit",
-        "file": "temp.c"
+        "file": "temp.cpp"
     }
 ]
