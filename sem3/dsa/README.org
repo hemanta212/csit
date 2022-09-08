@@ -1,0 +1,135 @@
+*** Sorting algorithms
+**** Selection sort
+A simple minded solution, goes through each item and grabs the minimum.
+The working part of array keeps decreasing by 1.
+There are 3 parts, one is already sorted part, another is assumed part another is working part of array
+
+// sorted-- -| A|-- Unsorted---|
+| 1 | 2 | 3 | 5 | 4 | 9 | 10 |
+
+the =i= is at =3= and it assumes =i= to be min and scans from =i+1= to =N= to try replace =i= (the assumed min)
+Running time is (N-1)+(N-2)+(N-3) --> N^2/2 compares and N exchanges
+***** Python Implementation
+
+#+begin_src python :exports both :results output
+  def sel_sort(array):
+      N = len(array)
+      for i in range(N):
+          a_min = i
+          for j in range(i+1, N):
+              if array[j] < array[a_min]:
+                  a_min = j
+          exchange(a_min, i, array)
+      return array
+
+  def exchange(i, j, array):
+      temp = array[i]
+      array[i] = array[j]
+      array[j] = temp
+
+  print(sel_sort([5,4,3,4,0,5,2]))
+#+end_src
+
+#+RESULTS:
+: [0, 2, 3, 4, 4, 5, 5]
+
+***** C Implementation
+
+#+begin_src C++ :results output :exports both :main no
+  #include <stdio.h>
+
+  void exchange(int i, int j, int array[]);
+
+  void selection_sort(int array[], int N){
+    for (int i=0; i<N; i++){
+      int a_min = i;
+      for(int j=i+1; j<N; j++)
+        if (array[j] < array[a_min])
+          a_min = j;
+      exchange(i, a_min, array);
+    }
+  }
+
+  void exchange(int i, int j, int array[]){
+    int temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  int main(){
+    int array[] = {5,3,0,4,2,5};
+    int N = sizeof(array)/sizeof(int);
+    selection_sort(array, N);
+    for (int i=0; i<N; i++){
+      printf("%d ", array[i]);
+    }
+  }
+#+end_src
+
+#+RESULTS:
+: 0 2 3 4 5 5
+
+**** Insertion Sort
+This is similar to selection, there are two parts sorted and unsorted that moves by +1 on each iteration.
+So theoritically on worst case both have similar N^2/2 running times.
+
+Insertion sort focuses on the left part, it just takes one item from unsorted and then proceeds to sort the left part.
+If we do impartial random analysis using randomly sorted data, insertion sort has better performance due to its design suited for nature of data.
+
+Insertion sort, takes an item then traverse back the list to index 0, swapping all prev item greater than it.
+
+Generally performs, N^2/4 (2 times faster than selection) on randomly sorted Data.
+For, sorted data, its linear time.
+
+#+begin_src python :exports both :results output
+  def insertion_sort(array):
+      N = len(array)
+      for i in range(N):
+          for j in range(i, 0, -1):
+              if array[j] < array[j-1]:
+                  exchange(j, j-1, array)
+      return array
+
+  def exchange(i, j, array):
+      temp = array[i]
+      array[i] = array[j]
+      array[j] = temp
+
+  print(insertion_sort([6,3,2,0,10,4,2]))
+#+end_src
+
+#+RESULTS:
+: [0, 2, 2, 3, 4, 6, 10]
+
+***** C Implementation
+
+#+begin_src C++ :results output :exports both :main no
+  #include <stdio.h>
+
+  void exchange(int i, int j, int array[]);
+
+  void insertion_sort(int array[], int N){
+    for (int i=0; i<N; i++)
+      for(int j=i; j>0; j--)
+        if (array[j] < array[j-1])
+          exchange(j, j-1, array);
+  }
+
+  void exchange(int i, int j, int array[]){
+    int temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  int main(){
+    int array[] = {5,3,0,4,2,5};
+    int N = sizeof(array)/sizeof(int);
+    insertion_sort(array, N);
+    for (int i=0; i<N; i++){
+      printf("%d ", array[i]);
+    }
+  }
+#+end_src
+
+#+RESULTS:
+: 0 2 3 4 5 5
