@@ -3,15 +3,24 @@
 # -Wall: this is a toggle always include Warning supressino after this toggle
 # -Wshadow: Issue warning when your decalre a var and again declare it thereby shadwoing the previous
 # -pedantic-erros: Generate more portability code issuing erros if some headers missing and stuff like that
+CC = clang
+CFLAGS = -ggdb3 -O0 -Wall -Werror -Wextra -Wshadow -pedantic-errors -std=c11 -lm
+TARGET = temp
 
-temp: temp.c
-	$(CLANG) clang temp.c -ggdb3 -O0 -o temp -Wall -Werror -Wextra -Wshadow -pedantic-errors -std=c11 -ledit -lm  
+all: $(TARGET)
 
-temprun:
+$(TARGET): temp.c
+	$(CC) $(CFLAGS) temp.c -o $(TARGET)
+
+temprun: $(TARGET)
 	./temp
 
 aa: aa.c
-	$(CLANG) clang aa.c -ggdb3 -O0 -o aa -Wall -Werror -Wextra -Wshadow -pedantic-errors -std=c11 -ledit -lm  
+	$(CC) $(CFLAGS) aa.c -o aa
 
 loose: temp.c
-	$(CLANG) clang temp.c -o temp -Wall -std=c11 -ledit -lm  
+	$(CC) -Wall -std=c11 -lm temp.c -o temp
+
+.PHONY: clean
+clean:
+	rm ./temp
