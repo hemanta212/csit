@@ -1,3 +1,24 @@
+
+#+DRAWERS: HIDDEN STATE
+#+PROPERTY: header-args: lang           :varname value
+#+PROPERTY: header-args:C++             :results output  :flags -std=c++17 -Wall --pedantic -Werror
+
+* DSA
+*** Table of contents
+:PROPERTIES:
+:TOC:      :include siblings :depth 3
+:END:
+:CONTENTS:
+- [[#sorting-algorithms][Sorting algorithms]]
+  - [[#selection-sort][Selection sort]]
+    - [[#python-implementation][Python Implementation]]
+    - [[#c-implementation][C Implementation]]
+  - [[#insertion-sort][Insertion Sort]]
+    - [[#python-implementation][Python Implementation]]
+    - [[#c-implementation][C Implementation]]
+  - [[#shell-sort][Shell sort]]
+    - [[#python-implementation][Python Implementation]]
+:END:
 *** Sorting algorithms
 **** Selection sort
 A simple minded solution, goes through each item and grabs the minimum.
@@ -11,7 +32,7 @@ the =i= is at =3= and it assumes =i= to be min and scans from =i+1= to =N= to tr
 Running time is (N-1)+(N-2)+(N-3) --> N^2/2 compares and N exchanges
 ***** Python Implementation
 
-#+begin_src python :exports both :results output
+#+begin_src python :exports both :results output :tangle ~/dev/csit/sem3/dsa/sorting/selection_sort.py
   def sel_sort(array):
       N = len(array)
       for i in range(N):
@@ -35,7 +56,7 @@ Running time is (N-1)+(N-2)+(N-3) --> N^2/2 compares and N exchanges
 
 ***** C Implementation
 
-#+begin_src C++ :results output :exports both :main no
+#+begin_src C++ :main no :noweb yes :exports both :tangle ~/dev/csit/sem3/dsa/sorting/selection_sort.c :results output
   #include <stdio.h>
 
   void exchange(int i, int j, int array[]);
@@ -79,9 +100,13 @@ If we do impartial random analysis using randomly sorted data, insertion sort ha
 Insertion sort, takes an item then traverse back the list to index 0, swapping all prev item greater than it.
 
 Generally performs, N^2/4 (2 times faster than selection) on randomly sorted Data.
-For, sorted data, its linear time.
+For, sorted data, its linear time i.e N-1 (every item except the first is compared and 0 exchanges).
 
-#+begin_src python :exports both :results output
+The biggest benefit of insertion sort is in partially sorted data, (for eg in excel sheet of 1000 rows you add few unsorted rows) then whole column will be sorted in linear time.
+
+***** Python Implementation
+
+#+begin_src python :exports both :results output :tangle ~/dev/csit/sem3/dsa/sorting/insertion_sort.py
   def insertion_sort(array):
       N = len(array)
       for i in range(N):
@@ -103,7 +128,7 @@ For, sorted data, its linear time.
 
 ***** C Implementation
 
-#+begin_src C++ :results output :exports both :main no
+#+begin_src C++ :main no :noweb yes :exports both :tangle ~/dev/csit/sem3/dsa/sorting/insertion_sort.c :results output
   #include <stdio.h>
 
   void exchange(int i, int j, int array[]);
@@ -133,3 +158,46 @@ For, sorted data, its linear time.
 
 #+RESULTS:
 : 0 2 3 4 5 5
+
+**** Shell sort
+We use h-sort increments to partially sort the array. We can use insertion sorting for that.
+For a shell sort of 7-3-1
+We jump to the 7th item, compare it with the item 7 place before it (i.e 0th/first) item. Then continue the process for 7+i item where (i=1,2,3...,N).
+Then we do same for 3 and 1 then the array is sorted.
+
+7-3-1 is an example combination and its still unknown what the ideal combination is.
+The usual formula is 3x+1,
+Shell originally in 1959 proprosed power of 2 - 1 which is worser.
+
+Sedgewick proposes : 1, 5, 19, 41, 109, 209, 505, 929, 2161, 3905, ... acc to his empirical analysis which performs better.
+
+With 3x+1, we get running time of N^1.5. But a comprehensive model has not been developed so it could even be nearer to NlogN
+
+Power of shell sort is it uses insertion sort underhood so still simpler to implement and fast for smaller N.
+- fast for smaller subarrays used in bzip2, linux/kernel/groups.c
+- used in embedding devices for low footprint code.
+
+Interesting as a best increment sequence is yet remaining to be discovered.
+
+***** Python Implementation
+#+begin_src python :exports both :results output :tangle ~/dev/csit/sem3/dsa/sorting/shell_sort.py
+  def shell_sort(array):
+      N = len(array)
+      # Compute the last increment
+      h = 1
+      while (h < N/3):
+          h = 3*h + 1 # The 3x + 1 increment sequence
+
+      while (h >= 1):
+          for i in range(h, N):
+              for j in range(i, 0, -h):
+                  if j >= h and array[j] < array[j-h]:
+                      array[j], array[j-h] = array[j-h], array[j]
+          h = int(h/3)
+      return array
+
+  print(shell_sort([5,6,4,3,0,2,3]))
+#+end_src
+
+#+RESULTS:
+: [0, 2, 3, 3, 4, 5, 6]
