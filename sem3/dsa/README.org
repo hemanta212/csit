@@ -349,7 +349,8 @@ This check is done by comparing the end of first half (largest item in first hal
       merge(array, aux, mid, low, high)
 #+end_src
 
-******* Eliminate Copy of Auxillary Array (save time but not space)
+****** Eliminate Copy of Auxillary Array (save time but not space)
+
 Switch array and aux for each recursion in mergesort
 Similarly in merge,
 - remove the code for copying and move it to sort() that calls mergesort
