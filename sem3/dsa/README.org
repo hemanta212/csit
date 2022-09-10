@@ -19,9 +19,12 @@
   - [[#shell-sort][Shell sort]]
     - [[#python-implementation][Python Implementation]]
   - [[#merge-sort][Merge sort]]
+    - [[#top-down-mergesort][Top Down MergeSort]]
     - [[#top-down-python-implementation][Top Down: Python Implementation]]
     - [[#top-down-cpp-implementation][Top Down: Cpp Implementation]]
     - [[#top-down-optimizations][Top Down: Optimizations]]
+    - [[#bottom-up-mergesort][Bottom Up Mergesort]]
+    - [[#notes-on-complexity][Notes on Complexity]]
 :END:
 *** Sorting algorithms
 **** Selection sort
@@ -207,6 +210,7 @@ Interesting as a best increment sequence is yet remaining to be discovered.
 : [0, 2, 3, 3, 4, 5, 6]
 
 **** Merge sort
+***** Top Down MergeSort
 The core concept is merging, ie taking two ordered list and creating a third ordered one.
 this merging process should take a linear time and comparision should take constant time as long as array index access is guarenteed to be constant.
 
@@ -314,6 +318,7 @@ The interesting bits are =in-place merge= and =extra optimizations=
 ***** Top Down: Optimizations
 ****** Check if array is already sorted
 This check is done by comparing the end of first half (largest item in first half) and start of second half (smallest item). If =less than or equal to= check passes then array is already sorted.
+- Reported 10% slower than recursive top down one (for java impl on most systems).
 
 #+begin_src python :exports code :results output
   def mergesort(array, aux, low, high):
@@ -329,7 +334,6 @@ This check is done by comparing the end of first half (largest item in first hal
 #+end_src
 
 #+RESULTS:
-
 
 ****** Use insertion sort for smaller sub arrays
 - Mergesort has too many overhead for tiny arrays.
@@ -401,3 +405,44 @@ Finally in sort,
       mergesort(array, aux, 0, len(array)-1)
       return array
 #+end_src
+
+***** Bottom Up Mergesort
+Inside the mergesort function the recursive calls are replaced by iterative loop with intervals first starting at 1,2...,N.
+Eg lets start at size 1, it can be produced by
+- Combining 1st and 2nd item, 3rd and 4th and so on
+Then for size 2,
+- 1-2 is merged with 3-4 and so on
+
+#+begin_src python :exports code :results output
+    def merge(array, aux, mid, low, high):
+        # same code
+        pass
+
+    def sort():
+        # Deleted function
+        pass
+
+    def mergesort(array):
+        N = len(array)
+        aux = []
+        sz = 1
+        while sz < N:
+            low = 0
+            while low < N - sz:
+                # if at the end of list take whichever feasible
+                high = min(lo+sz+sz-1, N-1)
+                merge(a, aux, lo, lo+sz-1, high)
+                low += sz + sz
+            sz += sz
+#+end_src
+
+***** Notes on Complexity
+*Computational Complexity Analysis*
+This analysis framework consists mainly of
+- Upper Bound: The running time guarenteed by Algorithm in question (here mergesort)
+- Lower Bound: Theoritical proven lowest cost time needed by algorithm X
+- Optimum Algorithm: Algorithm X where Upper Bound ~ Lower Bound
+
+  The Lower Bound of sorting is proven to be ~N Log N~ and =mergesort= achieves this. However it doesnot achieve optimum *space complexity*
+
+So a better algorithm than merge sort would not be faster than mergesort (its impossible) but the one that takes less space. We'll look at those algorithm below.
