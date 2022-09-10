@@ -21,6 +21,7 @@
   - [[#merge-sort][Merge sort]]
     - [[#top-down-python-implementation][Top Down: Python Implementation]]
     - [[#top-down-cpp-implementation][Top Down: Cpp Implementation]]
+    - [[#top-down-optimizations][Top Down: Optimizations]]
 :END:
 *** Sorting algorithms
 **** Selection sort
@@ -224,8 +225,6 @@ The interesting bits are =in-place merge= and =extra optimizations=
           aux[i] = array[i]
       # i points to A's first, j to B's first and K to aux array's first
       i, j = low, mid+1
-      A = array[low:mid]
-      B = array[mid+1:high+1]
       for k in range(low, high+1):
           if i > mid:
               array[k] = aux[j]
@@ -242,7 +241,6 @@ The interesting bits are =in-place merge= and =extra optimizations=
               else:
                   array[k] = aux[j]
                   j+=1
-      return aux
 
   def mergesort(array, aux, low, high):
       if low >= high:
@@ -312,3 +310,93 @@ The interesting bits are =in-place merge= and =extra optimizations=
 
 #+RESULTS:
 : 0 0 1 2 2 3 3 5 6 9
+
+***** Top Down: Optimizations
+****** Check if array is already sorted
+This check is done by comparing the end of first half (largest item in first half) and start of second half (smallest item). If =less than or equal to= check passes then array is already sorted.
+
+#+begin_src python :exports code :results output
+  def mergesort(array, aux, low, high):
+      if low >= high:
+          return
+      mid = int(low + (high-low)/2)
+      mergesort(array, aux, low, mid)
+      mergesort(array,aux, mid+1, high)
+      # Avoid merge if already sorted
+      if array[mid] <= array[mid+1]:
+          return
+      merge(array, aux, mid, low, high)
+#+end_src
+
+#+RESULTS:
+
+
+****** Use insertion sort for smaller sub arrays
+- Mergesort has too many overhead for tiny arrays.
+- Cutoff to insertion sort for ~ 7 items.
+
+#+begin_src python :exports code :results output
+  def mergesort(array, aux, low, high):
+      if high <= (low + CUTOFF - 1):
+          insertion_sort(array, low, high)
+          return
+      mid = int(low + (high-low)/2)
+      mergesort(array, aux, low, mid)
+      mergesort(array,aux, mid+1, high)
+      # Avoid merge if already sorted
+      if array[mid] <= array[mid+1]:
+          return
+      merge(array, aux, mid, low, high)
+#+end_src
+
+******* Eliminate Copy of Auxillary Array (save time but not space)
+Switch array and aux for each recursion in mergesort
+Similarly in merge,
+- remove the code for copying and move it to sort() that calls mergesort
+- Switch roles, merge array to aux.
+Finally in sort,
+- Copy array to aux before calling mergesort
+
+#+begin_src python :exports code :results output
+  def mergesort(array, aux, low, high):
+      if high <= (low + CUTOFF - 1):
+          insertion_sort(array, low, high)
+          return
+      mid = int(low + (high-low)/2)
+      mergesort(aux, array, low, mid)     # Switched here
+      mergesort(aux, array, mid+1, high)  # Switched here
+      # Avoid merge if already sorted
+      if array[mid] <= array[mid+1]:
+          return
+      merge(array, aux, mid, low, high)
+
+  def merge(array, aux, mid, low, high):
+      """Assumes array is sorted from 0 to mid and mid+1 to N"""
+
+      #for i in range(low, high+1): # Copy operation  # Deleted line
+      #    aux[i] = array[i]                          # Deleted line
+
+      # i points to A's first, j to B's first and K to aux array's first
+      i, j = low, mid+1
+      for k in range(low, high+1):
+          if i > mid:
+              aux[k] = array[j]        # Switched here
+              j += 1
+              continue
+          elif j > high:
+              aux[k] = array[i]
+              i+=1
+              continue
+          else:
+              if array[i] < array[j]:  # Switched here
+                  aux[k] = array[i]    # Switched here
+                  i+=1
+              else:
+                  aux[k] = array[j]    #  Switched here
+                  j+=1
+
+  def sort(array):
+      aux = array[:]
+      mergesort(array, aux, 0, len(array)-1)
+      return array
+#+end_src
