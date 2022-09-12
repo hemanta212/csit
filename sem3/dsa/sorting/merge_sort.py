@@ -4,8 +4,6 @@ def merge(array, aux, mid, low, high):
         aux[i] = array[i]
     # i points to A's first, j to B's first and K to aux array's first
     i, j = low, mid+1
-    A = array[low:mid]
-    B = array[mid+1:high+1]
     for k in range(low, high+1):
         if i > mid:
             array[k] = aux[j]
@@ -22,7 +20,6 @@ def merge(array, aux, mid, low, high):
             else:
                 array[k] = aux[j]
                 j+=1
-    return aux
 
 def mergesort(array, aux, low, high):
     if low >= high:
