@@ -1,0 +1,74 @@
+* DDA Line Drawing algorithm
+:Properties:
+:header-args: :main no
+:END:
+
+
+** Use steps for drawing
+** calculates dx with steps/(x2-x1) and dy similarly
+** here steps refers to either (x2-x1) or (y2-y1) whichever is greater
+** We run a loop for each stages and put pixel in (x+dx, x+dy) each iteration
+
+
+** Setup
+#+name: header
+#+begin_src C++ :results output :exports both
+  #include <iostream>
+  #include "graphics.h"
+
+  using std::cout;
+  using std::cin;
+
+#+end_src
+
+** Graphics init
+#+name: graphics-init
+#+begin_src C++ :results output :exports both
+  int gdriver = DETECT, gmode;
+  // initgraph(&gdriver, gmode, (char *)"");
+
+  initwindow(800, 600, "DDA Line drawing algorithm");
+#+end_src
+
+** DDA Algorithm
+#+name: dda-logic
+#+begin_src C++ :results output :exports both
+  int x1, y1, x2, y2;
+  cout << "Input X1 Y1";
+  cin >> x1 >> y1;
+  cout << "Input X2 Y2";
+  cin >> x2 >> y2;
+
+  int x_diff = abs(x2-x1);
+  int y_diff = abs(y2-y1);
+  int steps = x_diff > y_diff ? x_diff : y_diff;
+  int x = x1, y = y1;
+  int dx = int(steps/x_diff), dy = int(steps/y_diff);
+
+  for(int i=0; i<steps; i++){
+    x += dx;
+    y += dy;
+    putpixel(x,y, 15);
+    delay(100);
+  }
+#+end_src
+
+** Main
+#+begin_src C++ :results output :exports both :noweb yes :tangle "/mnt/d/projects/c-dev/VS/testproject/Test project/Test project.cpp"
+  <<header>>
+  int main(){
+    <<graphics-init>>
+
+   <<dda-logic>>
+
+   <<cleanup>>
+  }
+#+end_src
+
+** Cleanup
+#+name: cleanup
+#+begin_src C++ :results output :exports both
+  getch();
+  closegraph();
+  return 0;
+#+end_src
