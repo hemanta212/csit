@@ -5,7 +5,6 @@
 #include "stack.c"
 
 #include "infix_postfix.c"
-#include "infix_prefix.c"
 #include "postfix_calc.c"
 
 void input(char *message, char *str);

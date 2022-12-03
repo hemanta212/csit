@@ -9,7 +9,7 @@ TARGET = temp
 
 all: $(TARGET)
 
-$(TARGET): temp.c
+$(TARGET): temp.c stack.c infix_postfix.c postfix_calc.c
 	$(CC) $(CFLAGS) temp.c -o $(TARGET)
 
 temprun: $(TARGET)
