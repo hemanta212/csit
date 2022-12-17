@@ -8,58 +8,59 @@ Compression technique : Reduce the length of a message
 length = 20
 
 ASCII = 8 bits
++ A - 65 - 01000001 - 8 bits
++ B - 66 - 01000010 - 8 bits
++ ..
++ ..
+Total size: 8x20 -> 160 bits
 
-A - 65 - 01000001 - 8 bits
-B - 66 - 01000010 - 8 bits
-.
-.
-8x20 - 160
+Since we're not using every character possible, ascii code is not really required and we could make our own coding format.
 
-Since we're not using every char possible ascii code is not really required and we could make our own coding format
+The number of representation you can do with ~n~ bits is ~2^n~.
+- With just ~0/1~ you can do ~2~, with ~2~ bits you can do ~4~.
+
+Since, we've to represent 5 letters in total we'll do with 3 bits.
 
 *Example: BCCABBDDAECCBBAEDDCC*
 
-| charectar | count/freq | code |
-| A         |          3 |  000 |
-| B         |          5 |  001 |
-| C         |          6 |  010 |
-| D         |          4 |  011 |
-| E         |          2 |  100 |
-| Total     |         20 |      |
-
-The number of representation you can do with n bits is 2^n.
-i.e With just 0/1 you can do 2, with 2 bits you can do 4.
-Since we've 5 in total we'll do with 3 bits.
+| char  | count/freq | code |
+| A     |          3 |  000 |
+| B     |          5 |  001 |
+| C     |          6 |  010 |
+| D     |          4 |  011 |
+| E     |          2 |  100 |
+| Total |         20 |      |
 
 Message size: 20 * 3 => 60 bits
 
-*How do we now store this custom this we just wrote*
-We need to send the table as well,
-for this
-Ascii code for character in table: 5 * 8 -> 40
-For each three bit code : 5 * 3 -> 15
+*How do we now store this custom coding spec we just wrote?*
 
-Msg -> 60
-Table -> 55 bits
-Total -> 115
+For decoding, we need to send the table as well. for this;
 
-Therefore: from 160 -> 115
++ Ascii code for character in table: 5 letters * 8 bits each -> 40 bits
++ For each three bit code : 5 * 3 -> 15
+
+- Message -> 60 bits
+- Table -> 55 bits
+- Total -> 115 bits
+
+Therefore: from 160 bits originally to 115 bits after fixed sized coding
 
 * Huffman coding
 *Example: BCCABBDDAECCBBAEDDCC*
 
-What we did last was fixed sized coding, huffman specifies variable size coding
+What we did above, was fixed sized coding. Huffman algorithm additionally specifies variable size coding.
 
 Requirements:
 - To sort the elements in increasing order of count/freq
 
- | charectar | count/freq | code |
- | A         |          3 |      |
- | B         |          5 |      |
- | C         |          6 |      |
- | D         |          4 |      |
- | E         |          2 |      |
- | Total     |         20 |      |
+| char  | count/freq | code |
+| A     |               3 |      |
+| B     |               5 |      |
+| C     |               6 |      |
+| D     |               4 |      |
+| E     |               2 |      |
+| Total |              20 |      |
 
 Now, add them up in pairs to form a tree like this;
  #+begin_src text
@@ -73,32 +74,38 @@ Now, add them up in pairs to form a tree like this;
    E  A    D  B  C
  #+end_src
 
-mark each side (20-9-5-2, 11-5) edges as 0 and right side(20-11-6, 9-4, 5-3) as 1
-To get the bit representation for a letter suppose A walk from the root to that letter
-A -> (20-9: 0, 9-5:0, 5-3:1 -> 001) : bits * freq  3*3
-B -> (20-11: 1, 11-5:0 -> 10) : 2 * 5
-C -> (20-11: 1, 11-6:1 -> 11) : 6 * 2
-D -> (20-9: 0, 9-4:1 -> 01) : 4 * 2
-E -> (20-9-5-2: 000) : 2 * 3
+Mark left edges (20-9-5-2, 11-5) as 0 and right edges (20-11-6, 9-4, 5-3) as 1.
 
- | charectar | count/freq |    code |
- | A         |          3 |     001 |
- | B         |          5 |      10 |
- | C         |          6 |      11 |
- | D         |          4 |      01 |
- | E         |          2 |     000 |
- | Total     |         20 | 45 bits |
+To get the bit representation for a letter (suppose A), start a walk from the root to that letter (A).
++ A -> (20-9: 0, 9-5:0, 5-3:1 -> 001) : (Size: bits * freq : 3*3)
++ B -> (20-11: 1, 11-5:0 -> 10) : (2 * 5)
++ C -> (20-11: 1, 11-6:1 -> 11) : (6 * 2)
++ D -> (20-9: 0, 9-4:1 -> 01) : (4 * 2)
++ E -> (20-9-5-2: 000) : (2 * 3)
 
-Also send the table or tree info, whichever is cheaper:
-Table info -> charectar 5 * 8 -> 40, code: 3*2+2*3 -> 12 : total 52 bits
-Total: 52 + 45 --> 92 bits
+| charectar | count/freq |    code |
+| A         |          3 |     001 |
+| B         |          5 |      10 |
+| C         |          6 |      11 |
+| D         |          4 |      01 |
+| E         |          2 |     000 |
+| Total     |         20 | 45 bits |
 
-Tree info -> distance*freq (E: 2-5-9-20: 3*2, A: 3-5-9-20: 3*3, D: 4-9-20: 2 * 4, B: 5-11-20: 2*5, C: 6-11-20: 2*6) = 45
-45 bits
+Also, to send the table info:
++ Table info -> charectar 5 * 8 -> 40, code: 3*2+2*3 -> 12 : total 52 bits
++ Total: 52 + 45 --> 92 bits
+
+Calculating size from tree -> distance x freq
++ E: 2-5-9-20: 3*2
++  A: 3-5-9-20: 3*3
++ D: 4-9-20: 2 * 4
++ B: 5-11-20: 2*5
++ C: 6-11-20: 2*6
++ = 45 bits
 
 * Huffman decoding
 *Example:*
-| 001 | 11 | 11 | 01 | 10 | 11 | 11 | 001 | 01 | 10 | 001 | 11 | 11 | 02 |   |   |   |   |   |   |
+| 001 | 11 | 11 | 01 | 10 | 11 | 11 | 001 | 01 | 10 | 001 | 11 | 11 | 02 |
 
  #+begin_src text
          20
@@ -110,8 +117,9 @@ Tree info -> distance*freq (E: 2-5-9-20: 3*2, A: 3-5-9-20: 3*3, D: 4-9-20: 2 * 4
    2  3    4  5  6
    E  B    D  A  C
  #+end_src
-Decode the first from root: 0(20-9), 0(9-5), 1(5-3) -> B
-+ 1(20-11), 1(11-6), -> C
+Decode from root: 0(20-9), 0(9-5), 1(5-3) -> (3=B)
++ 1(20-11), 1(11-6) -> (6=C)
++ ...  so on,
 
-and so on to produce this,
-|   B |  C |  C |  D |  A |  C |  C |   B |  D |  A |   B |  C |  C |  D | E | A | A | E | D | A |
+to produce this,
+|   B |  C |  C |  D |  A |  C |  C |   B |  D |  A |   B |  C |  C |  D |
