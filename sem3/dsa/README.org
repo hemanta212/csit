@@ -31,6 +31,7 @@
     - [[#implementation-details][Implementation Details]]
     - [[#running-time-analysis][Running Time Analysis]]
     - [[#improvements][Improvements]]
+  - [[#heap-sort][Heap Sort]]
 :END:
 *** Sorting algorithms
 **** Selection sort
@@ -606,3 +607,43 @@ Median is the best choice.
 We can estimate true median by taking median of sample.
 We take median of 3 random items and choose that as partitioning value.
 Improves performance about 10%.
+
+**** Heap Sort
+*NOTE:* Read priority queues first
+
+*Heap Binary Tree*
+A heap binary tree is a complete binary tree with max order guarenteed always, where a parent node is always greater in value than its children nodes, thus making the root node the largest item.
+
+*Basic Plan*
+- Create max-heap with all ~N~ keys.
+- Repeatedly remove the maximum key.
+
++ We take a array with keys at random order
++ We know do inplace heap ordering on that array by supposing it as a binary heap.
+
+  *Heap Construction:*
+Build max heap using bottom-up method.
+
+- A random key array is taken
+- A node is by default heap ordered it has no children
+- We visit each ~n-1~ leveled node (where ~n~ is no of levels of heap)
+- We run sink operation to make sure the level and bottom level is ordered
+- We move one level up and do the same ensuring all the lower levels are ordered.
+- Finally we reach the root and sink it.
+
+Now, once the heap is max oriented, we repeatedly execute the delMax operation removing the root with last element of array and sinking it to re-balance the tree. Until the tree is empty.
+
+#+begin_src python :exports both :results output
+  start_level = round(N/2)
+  end_level = 0
+  k = start_level
+  while k >= end_level:
+      sink(array, k, N)
+#+end_src
+
+#+begin_src python :exports both :results output
+  while N>0:
+      exchg(array, 0, N)
+      N -= 1
+      sink(a, 0, N);
+#+end_src

@@ -69,6 +69,8 @@ While the first two approach would make us weigh in the tradeoffs, the third opt
 It is possible through techniques and process we'll see later.
 
 * Binary Heaps
+ *A heap binary tree is a complete binary tree with max oriented heap order.*
+
 - Binary Tree: Empty or node with links to left and right binary trees
 - Complete binary tree: perfectly balanced except for the bottom level
 
