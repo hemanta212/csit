@@ -1,0 +1,262 @@
+* Priority Queues
+After FIFO, LIFO, we also have priority queues.
+Each elements are comparable in some way to each other and the first one to "pop" is the max or the min item.
+
+We have data to process, can't process them all, we have to shave some of them. Priority Queues says, let's organize it in some way so that we're always taking the best possible data to process.
+
++ Applications:
+  - Operating systems (load balancing and inturrupt handling)
+  - Event driven simulatin (customer in line, colliding particles)
+  - numerical computation (reducing roundoff errors)
+  - Data compression (huffman codes)
+  - Graph searching (Dijkstra's algo, prim's algo)
+  - Spam filter (Bayesian spam filter)
+
+* Example 1: Event Driven Priority Queue
+Keep track of 5 largest Transactions. Constantly get new transaction and have the queue updated.
+
+Delete the min transaction everytime limit '5' is reached.
+
+| implementation | time    | space |
+| sort           | NlogN   | N     |
+| elementary PQ  | MN      | M     |
+| binary heap    | N log M | M     |
+| best in theory | N       | M     |
+
+We dont have N space to use the sort so we'd have to get innovative here.
+
+* Example 1: Implementation Elementary PQ : Unordered Array
+
+#+begin_src python :results output :exports both
+  from typing import List
+
+  class UnorderedMaxPQ:
+    def __init__(self, capacity:int):
+      self.pq:List[Key] = [] # array of keys
+      # array cap, cannot embed in array cause python
+      self.pq_capacity:int = capacity
+      self.N:int = None # num of element on pq
+
+    def isEmpty(self)->bool:
+      return self.N == 0
+
+    def insert(x:Key)->None:
+      pq[self.N] = x
+      self.N += 1
+
+    def delMax()->Key:
+      max:int = 0
+      for i in range(N):
+        if less(max, i):
+          max = i
+
+      exchange(max, N-1)
+      self.N -= 1
+      return pq[self.N]
+
+#+end_src
+
++ Analysis
+
+| implementation  | insert | del max | max  |
+| unordered array | 1      | N       | N    |
+| ordered array   | N      | 1       | 1    |
+| goal            | logN   | logN    | logN |
+
+While the first two approach would make us weigh in the tradeoffs, the third optimum goal would be preferable.
+
+It is possible through techniques and process we'll see later.
+
+* Binary Heaps
+- Binary Tree: Empty or node with links to left and right binary trees
+- Complete binary tree: perfectly balanced except for the bottom level
+
+#+begin_src artist
+        O
+       / \
+      O   O
+     / \   \
+    O   O   O
+   /
+  O
+#+end_src
+Figure: complete binary tree
+
+** Array representation and properties
+A complete binary tree can easily be represented by an array
+
+  #+begin_src text
+        T
+       /  \
+      S    R
+     /\   / \
+    P  N  O  Q
+   / \  \
+  D   A  C
+#+end_src
+
+| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+| - | T |   |   |   |   |   |   |   |   |    |
+|   |   | S | R |   |   |   |   |   |   |    |
+|   |   |   |   | P | N | O | Q |   |   |    |
+|   |   |   |   |   |   |   |   | D | A | C  |
+
+*Properties*
+- You can reach the parent of a Node at k, with k/2
+- Children of a parent is at 2k and 2k+1.
+
+** Max oriented Heap order
+One of the key properties of the binary heap tree  we use  is heap order (max oriented)
+
+This states, no children should ever be greater in value than parent.
+
+This ensures the fact, root is the largest element in a max oriented heap order
+
+** Maintaining Heap order
+*** Promotion in Heap
+
+To fix an unordered part of a binary tree, we can just exchange it with its parent.
+- A[k/2] = A[k]. (from properties above)
+
+#+begin_quote
+     Node promoted to level of incompetence ---Peter Principle
+#+end_quote
+
+  #+begin_src python :exports both :results output
+    def swim(int k):
+        while k > 0 and is_value_less(k/2, k):
+            exch(k, k/2)
+            k = k/2
+  #+end_src
+
+*When to check for unordered deformities?*
+
+Well, we will run a swim operation everytime an element is inserted so that the heap always remains ordered.
+
+#+begin_src python :exports both :results output
+  def insert(x):
+    N += 1
+    pq[N] = x
+    swim(N)
+#+end_src
+
+*** Demotion in Heap
+
+If a parent ever becomes smaller than one (or both) of its children.
+
+To fix an unordered part of a binary tree, We evaluate both the children and exchange with largest child.
+
+  #+begin_src python :exports both :results output
+    def sink(int k):
+        while 2*k <= N:
+            child1, child2 = 2*k, 2k+1
+            child = child1 # suppose for now
+            if child2<=N and is_less_value(child1, child2):
+                child = child2
+
+            if is_less_value(k, child):
+                exchg(k, child)
+                k = child
+            else:
+                break
+  #+end_src
+
+*Deletion of Root/Maximum in heap*
+
+For this, we exchange root with last element then run sink in the index of root.
+
+#+begin_src python :exports both :results output
+  def delMax()->Key:
+      max_ = pq[0]
+      exch(0, N)
+      # decrease array size
+      pq[N] = None
+      N -= 1
+      # start sinking
+      sink(0)
+      return max_
+#+end_src
+
+* Implementation of Heap ordered PQ
+
+#+begin_src python :exports both :results output
+  class MaxPQ:
+    def __init__(self, capacity:int):
+      self.pq:list[Key] = []
+      # array's capacity cannot embed in array cause python
+      self.pq_capacity:int = capacity
+      self.N = 0
+
+   def insert(self, x:Key)->None:
+     self.N += 1
+     self.pq[self.N] = x
+     self.swim(N)
+
+   def delMax(self)->Key:
+     max_:Key = self.pq[0]
+     self.exchg(0, N)
+     # eliminate loitering value
+     self.pq[N] = None
+     # decrease size
+     self.N -= 1
+     self.sink(0)
+     return max_
+
+   def isEmpty(self):
+     return N == 0
+
+   def swim(self, k:int):
+     while k > 0 and self.is_less_value(round(k/2), k):
+         self.exchg(round(k/2), k)
+         k = round(k/2)
+
+   def sink(self, k:int):
+     while 2*k <= N:
+       child1:int, child2:int = 2*k, 2*k+1
+       # consider child1 to be large by default
+       child = child1
+       # prove child2 exists and is larger than child1
+       if child2 <= N and self.is_less_value(child1, child2):
+         child = child2
+       # compare the parent with victorious child
+       if self.is_less_than(k, child):
+         self.exchg(k, child)
+         k = child
+       # loop can be infinite if k is not incremented
+       else:
+         break
+
+   def is_less_value(self, i:int, j:int):
+     return self.pq[i] < self.pq[j]
+
+   def exchg(self, i:int, j:int):
+     self.pq[i], self.pq[j] = self.pq[j], self.pq[i]
+#+end_src
+
+* Order of growth table
+
+| implementation  | insert  | del max  | max |
+| unordered array | 1       | N        |   N |
+| ordered array   | N       | 1        |   1 |
+| Binary heap     | log N   | log N    |   1 |
+| d-ary heap      | log_d N | dlog_d N |   1 |
+| Fibonacci       | 1       | log N^1  |   1 |
+| Impossible      | 1       | 1        |   1 |
+
+* Considerations
+** Immutability of keys
+- Assumption: Client doesnot change keys while those keys are in PQ
+- Best practice: Only use immutable keys
+
+** Immutability of keys
+- Underflow: throw exception if deleting from empty PQ.
+- Overflow: throw exception when inserting to full PQ if capacity given otherwise resize the array.
+
+** Min oriented PQ
+- Just replace ~less/is_less_value~ with greater function and implement it
+
+** Other operation
+- Remove an arbitary item.
+- Change the priority of an item.
+
+ [Above two can be done with swim and sink, later in the excercise]
