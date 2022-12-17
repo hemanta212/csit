@@ -1,4 +1,5 @@
-* Priority Queues
+#+TITLE: Priority Queues
+* Intro
 After FIFO, LIFO, we also have priority queues.
 Each elements are comparable in some way to each other and the first one to "pop" is the max or the min item.
 
@@ -248,7 +249,7 @@ For this, we exchange root with last element then run sink in the index of root.
 - Assumption: Client doesnot change keys while those keys are in PQ
 - Best practice: Only use immutable keys
 
-** Immutability of keys
+** Overflow and underflow
 - Underflow: throw exception if deleting from empty PQ.
 - Overflow: throw exception when inserting to full PQ if capacity given otherwise resize the array.
 
