@@ -95,11 +95,11 @@ A complete binary tree can easily be represented by an array
   D   A  C
 #+end_src
 
-| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
-| - | T |   |   |   |   |   |   |   |   |    |
-|   |   | S | R |   |   |   |   |   |   |    |
-|   |   |   |   | P | N | O | Q |   |   |    |
-|   |   |   |   |   |   |   |   | D | A | C  |
+| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+| T |   |   |   |   |   |   |   |   |   |
+|   | S | R |   |   |   |   |   |   |   |
+|   |   |   | P | N | O | Q |   |   |   |
+|   |   |   |   |   |   |   | D | A | C |
 
 *Properties*
 - You can reach the parent of a Node at k, with k/2
