@@ -1,0 +1,190 @@
+#+TITLE: Binary Tree
+
+* Intro
++ finite set of elements
++ each element
+  + empty
+  + partitioned into three disjoint subsets
+    + first subset contains the root of the binary tree branch
+    + the other two subset contain tree, called left and right subtrees
+    + a left or right subtree can be empty or ... cycle repeats
+
++ The empty node with no left or right subtree is called leaf
++ Two nodes (left and right subtree from same node) is called brothers
++ Climbing: Going from leafs to root
++ Decending: Going from root to leafs
++ Strictly Binary Tree: if Every nonleaf node in binary tree has nonempty left and right subtrees, the tree is termed a strictly binary tree.
++ Level: Root level is 0, and sibling brother has same level
+
+  *Height of Binary Search Tree*
+
+  THe height of binary search tree is
+  - Min: log N
+  - Max: N
+
+* Binary Search Trees (BST)
+A binary search tree is a binary tree in symmetric order.
+
+*Properties*
+- Each node has key, and every node's key is
+  - Larger than all keys in its left subtree
+  - smaller than all keys in its right subtree
+
+* Binary Search Tree Implementation Using linked list
+A ~Node~ is comprised of four fields
+- A key and value
+- A reference to left and right subtree.
+
+We need doubly linked list for this.
+
+** Get
+The root of binary tree is such that, the all left part is lesser/smaller than it and right part is greater than it.
+
+For a get operation, we compare given value with the key in root, if the value is smaller than root we go left and viceversa.
+
+If we hit the required key, we return it otherwise we return null
+#+begin_src python :exports both :results output
+  # Not Python: But Pseudocode
+  class Node:
+      def __init__(self, key, value, right=None, left=None):
+          self.key = key
+          self.value = value
+          self.right = right
+          self.left = left
+
+  def get(tree:Node, key:str)->Node:
+      # tree's first item is metadata with pointer to head
+      root:Node = tree.head
+      value = None
+      while root is not None:
+          if key == root.key:
+              value = root.value
+              break
+          elif key < root.key:
+              root = root.left
+          else:
+              root = root.right
+      return value
+#+end_src
+
+** Insert
+We follow the same method as Get, but whenever we find a hit, we raise error maybe and if we dont get hit, we place the Node at that position.
+#+begin_src python :exports both :results output
+  def insert(tree:Node, key:str, value:str)->None:
+      # tree's first item is metadata with pointer to head
+      root:Node = tree.head
+      value:str = None
+      LastLeaf:Node = root
+
+      while root is not None:
+          if key == root.key:
+              root.value = value
+              break
+          elif key < root.key:
+              LastLeaf = root
+              root = root.left
+          else:
+              LastLeaf = root
+              root = root.right
+
+      if key < LastLeaf.key:
+          LastLeaf.left = Node(key, value)
+      else:
+          LastLeaf.right = Node(key, value)
+#+end_src
+
+*Recursive Insert*
+
+#+begin_src python :exports both :results output
+  def put(root:Node, key:str, value:str):
+    root = put_(root, key, value)
+
+  def put_(root:Node, key:str, value:str)->Node:
+    if root is None:
+      return Node(key, value)
+
+    if key < root.key:
+      root.left = put_(root.left, key, value)
+    elif key > root.key:
+      root.right = put_(root.right, key, value)
+    else: # key == root.key
+      root.value = value
+
+    return root
+#+end_src
+
+* Analysis of BST
+The bad thing is unbalanced BST can go unmanagable at times, worst case it will resemble linked list
+
+However, in relatively balanced tree, the depth doesnot increase that easily and the farthest distance remain short.
+
+if there are no duplicates, there is one to one correspondence with quick sort partitioning and BSTs
+
+* Balanced Search Tree
+** 2-3 Trees
+*Concept* : Allow 1 or 2 keys per node
+- 2-node: A node with 1 key and two children
+- 3-node: A node with 2 keys and three children
+
+*Properties*
+- Every path from root to null link has same length (perfect balance)
+- Symmetric Order: Inorder traversal yields keys in ascending order
+
+*How it works*
+
+In a node with three children, and two keys [suppose (E J)], the right children will be larger than J(largest of two keys) and left children will be smaller than E(smallest of two keys) and middle children will be between E and J.
+
+*Searching in 2-3 Tree*
+
+#+begin_src text
+                        (M)
+                      /     \
+                     /       \
+                  (EJ)        (R)
+                 /  /\         /\
+                /  /  \       /  \
+             (AC) (H) (L)   (P)   (SX)
+#+end_src
+
+- *Searching H*
+- Goes to root (M), H is less so goes to left toward (EJ)
+- H is in between EJ, so goes middle down, finds H
+
+- *Searching B*
+- Goes to root (M), B is less, so goes to left toward (EJ)
+- B is still less than smaller of two keys, so moves left to (AC).
+- B is in between AC so goes middle, encounters ~null~.
+
+*
+
+** AVL Trees
+*Balance Factor* height of left subtree - height of right subtree
+
+This is calculated for each node.
+
+=bf = hl - hr = {-1, 0 1}= (ideally should be either of these values)
+
+~|bf| = |hl-hr| <= 1~
+
+*** Rotation in AVL Trees
+**** LL Imbalance and Rotation
+
+#+begin_src text
+  10                  10
+   \                 /  \
+    20              20   30
+     \
+      30
+#+end_src
+
+
+*** Process in AVL Tree
+While inserting the ~bf~ baance factor is calculated for all the node (starting from node inserted to its all parents). Whenever we encouter a value deviating from the set ~{-1, 0, 1}~, we start balancing.
+
+Balancing is done in pair of three nodes only, starting from the node which was unbalanced in the direction of newly inserted node.
+
+In case of multiple imbalances, the node which is closest parent to new node is balanced first.
+
+Thus, AVL is very strict balancing approach which never lets a ~bf~ of a Node to exceed ~2/-2~.
+
+We will see other versions that are more looser in practice like Red Black tree later
