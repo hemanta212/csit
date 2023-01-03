@@ -1,0 +1,89 @@
+* Mid point circle algorithm
+:Properties:
+:header-args: :main no
+:END:
+
+** Setup
+#+name: header
+#+begin_src C++ :results output :exports both
+  #include <stdio.h>
+  #include "graphics.h"
+
+#+end_src
+
+** Graphics init
+#+name: graphics-init
+#+begin_src C++ :results output :exports both
+  int gdriver = DETECT, gmode;
+  // initgraph(&gdriver, gmode, (char *)"");
+
+  initwindow(800, 600);
+#+end_src
+
+** Midpoint circle Algorithm
+#+name: midpoint-circle-func
+#+begin_src C++ :results output :exports both
+  void cal(double a, double b, double r)
+  {
+      double x=0, y=r, p;
+      putpixel (a, b+r, WHITE);
+      putpixel (a, b-r, WHITE);
+      putpixel (a-r, b, WHITE);
+      putpixel (a+r, b, WHITE);
+      p=(5/4)-r;
+      while (x<=y)
+      {
+          if(p<0)
+              p+= (2*x)+3;
+          else
+          {
+              p+=(2*(x-y))+5;
+              y--;
+          }
+          x++;
+          putpixel (a+x, b+y, WHITE);
+          putpixel (a-x, b+y, WHITE);
+          putpixel (a+x, b-y, WHITE);
+          putpixel (a-x, b-y, WHITE);
+          putpixel (a+y, b+x, WHITE);
+          putpixel (a+y, b-x, WHITE);
+          putpixel (a-y, b+x, WHITE);
+          putpixel (a-y, b-x, WHITE);
+          delay(100);
+      }
+  }
+#+end_src
+
+** Main
+#+begin_src C++ :results output :exports both :noweb yes :tangle ~/dev/csit/temp.c
+  <<header>>
+
+  <<midpoint-circle-func>>
+
+  int main(){
+
+    <<graphics-init>>
+
+      float x, y,a, b, r, p;
+      int gd = DETECT, gm;
+      initgraph(&gd, &gm, (char *)"");
+      printf("ENTER CENTER AND RADIUS \n");
+      printf("ENTER (a, b): ");
+      scanf("%d %d", &a, &b);
+      printf("ENTER r ");
+      scanf("%d", &r);
+      cal(a, b, r);
+
+   <<cleanup>>
+
+  }
+
+#+end_src
+
+** Cleanup
+#+name: cleanup
+#+begin_src C++ :results output :exports both
+  getch();
+  closegraph();
+  return 0;
+#+end_src

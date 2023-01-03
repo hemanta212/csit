@@ -1,0 +1,82 @@
+* BLA Line Drawing algorithm
+:Properties:
+:header-args: :main no
+:END:
+
+- Takes x1 x2 y1 y2 values
+-
+
+** Setup
+#+name: header
+#+begin_src C++ :results output :exports both
+  #include <stdio.h>
+  #include "graphics.h"
+
+#+end_src
+
+** Graphics init
+#+name: graphics-init
+#+begin_src C++ :results output :exports both
+  int gdriver = DETECT, gmode;
+  // initgraph(&gdriver, gmode, (char *)"");
+
+  initwindow(800, 600);
+#+end_src
+
+** BLA Algorithm
+#+name: bla-func
+#+begin_src C++ :results output :exports both
+  void bsline(int x,int y,int x2,int y2)
+  {
+      int dx,dy,p;
+      dx=x2-x;
+      dy=y2-y;
+      p = 2 * (dy) - (dx);
+      while(x <= x2)
+      {
+          if(p < 0)
+          {
+              x=x+1;
+              y=y;
+              p = p + 2 * (dy);
+          }
+          else
+          {
+              x=x+1;
+              y=y+1;
+              p = p + 2 * (dy - dx);
+          }
+          putpixel(x,y,RED);
+          delay(10);
+      }
+  }
+#+end_src
+
+** Main
+#+begin_src C++ :results output :exports both :noweb yes :tangle ~/dev/csit/temp.c
+  <<header>>
+
+  <<bla-func>>
+
+  int main(){
+
+    <<graphics-init>>
+
+      int x1,x2,y1,y2;
+      printf("Enter the x1,y1,x2,y2 values : ");
+      scanf("%d %d %d %d", &x1, &y1, &x2, &y2);
+      bsline(x1,y1,x2,y2);
+
+   <<cleanup>>
+
+  }
+
+#+end_src
+
+** Cleanup
+#+name: cleanup
+#+begin_src C++ :results output :exports both
+  getch();
+  closegraph();
+  return 0;
+#+end_src
