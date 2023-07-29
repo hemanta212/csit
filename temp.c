@@ -1,68 +1,54 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "graphics.h"
 
-#include "stack.c"
 
-#include "infix_postfix.c"
-#include "infix_prefix.c"
-#include "postfix_calc.c"
-
-void input(char *message, char *str);
-void evalInfixToPostfix();
-void postfixEval();
-
-int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    printf("Usage  ./main [prefix/postfix/prefix-eval/postfix-eval]\n");
-    return 1;
-  }
-  char *argument = argv[1];
-  if (strcmp(argument, "prefix") == 0) {
-    evalInfixToPostfix();
-  } else if (strcmp(argument, "postfix") == 0) {
-    evalInfixToPostfix();
-  } else if (strcmp(argument, "postfix-eval") == 0) {
-    postfixEval();
-  } else if (strcmp(argument, "prefix-eval") == 0) {
-    postfixEval();
-  } else {
-    printf("Invalid argument %s.\nUsage ./main "
-           "[prefix/postfix/prefix-eval/postfix-eval]\n",
-           argument);
-  }
+void cal(double a, double b, double r)
+{
+    double x=0, y=r, p;
+    putpixel (a, b+r, WHITE);
+    putpixel (a, b-r, WHITE);
+    putpixel (a-r, b, WHITE);
+    putpixel (a+r, b, WHITE);
+    p=(5/4)-r;
+    while (x<=y)
+    {
+        if(p<0)
+            p+= (2*x)+3;
+        else
+        {
+            p+=(2*(x-y))+5;
+            y--;
+        }
+        x++;
+        putpixel (a+x, b+y, WHITE);
+        putpixel (a-x, b+y, WHITE);
+        putpixel (a+x, b-y, WHITE);
+        putpixel (a-x, b-y, WHITE);
+        putpixel (a+y, b+x, WHITE);
+        putpixel (a+y, b-x, WHITE);
+        putpixel (a-y, b+x, WHITE);
+        putpixel (a-y, b-x, WHITE);
+        delay(100);
+    }
 }
 
-void evalInfixToPostfix() {
-  Stack *stack = NULL;
+int main(void){
+  int gdriver = DETECT, gmode;
+  // initgraph(&gdriver, gmode, (char *)"");
+  
+  initwindow(800, 600);
 
-  char input_line[1024];
-  input("Expression: ", input_line);
+    float a, b, r;
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, (char *)"");
+    printf("ENTER CENTER AND RADIUS \n");
+    printf("ENTER (a, b): ");
+    scanf("%f %f", &a, &b);
+    printf("ENTER r ");
+    scanf("%f", &r);
+    cal(a, b, r);
 
-  for (int i = 0; i <= (int)strlen(input_line); i++) {
-    char ch = input_line[i];
-    if (ch == '\0')
-      break;
-    else if (ch == ' ')
-      continue;
+ closegraph();
+ return 0;
 
-    postfixProcessChar(input_line[i], &stack);
-  }
-  postfixCleanup(&stack);
-  freeStack(stack);
-  puts("");
-}
-
-void postfixEval() {
-  Stack *stack = NULL;
-
-  char eval_line[1024];
-  input("Expression: ", eval_line);
-  calculatePostfix(eval_line, &stack);
-  printf("Result: %s\n", pop(&stack));
-}
-
-void input(char *message, char *str) {
-  printf("%s", message);
-  scanf("%[^\n]", str);
 }

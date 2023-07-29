@@ -1,0 +1,61 @@
+#+title: Caesar Cipher
+#+property: header-args:python :tangle ~/dev/csit/sem5/crypto/caesar_cipher.py
+
+** Encrypt function
+Simple Encrypt function, goes over each charactar in the message and applies the rotation to it.
+#+begin_src python :exports both :results output
+  def encrypt_cipher(message, rotation):
+      encrypted = ''
+      for char in message:
+          encrypted += apply_rot(char, rotation)
+      return encrypted
+#+end_src
+
+** Decrypt function
+Decryption of the message, inverse of the encryption function.
+#+begin_src python :exports both :results output
+  def decrypt_cipher(message, rotation):
+      return encrypt_cipher(message, 26-rotation)
+#+end_src
+
+** Apply Rotation
+The core of the encryption and decryption, this function applies the rotation to the charactar.
+It leaves non-alphabetic charactars as it is.
+
+For upper and lowercase char, it rotates by converting to and forth their ascii values using ~ord~ and ~chr~.
+
+For rotation, it first brings the charactar to a common denominator base of 26, then adds the rotation and takes the modulo of 26.
+
+Then again converts to the original base and returns the charactar.
+
+#+begin_src python :exports both :results output
+  def apply_rot(char, rot):
+      if not char.isalpha():
+          return char
+
+      # Bring to a common denominator base of 26
+      # Subtract by 65 if uppercase, 97 if lowercase.
+      base = ord('a') if char.islower() else ord('A')
+      index = ord(char) - base
+      new_index = (index + rot) % 26
+      return chr(base + new_index)
+#+end_src
+
+** Cli Interface
+Interface for users to input encrypted or plain text and the rotation. Choose the mode of operation and get the result.
+#+begin_src python :exports both :results output
+    def main():
+        print('Welcome to Caesar Cipher, Write your message suffixed with 0 or 1 to encrypt or decrypt respectively.')
+        while True:
+            message = input('Enter your message: ')
+            mode = message[-1]
+            if mode == '1':
+                print('Decrypted message: ', decrypt_cipher(message[:-1], 3))
+            elif mode == '0':
+                print('Encrypted message: ', encrypt_cipher(message[:-1], 3))
+            else:
+                print('Invalid mode, try again.')
+
+    if __name__ == '__main__':
+        main()
+#+end_src

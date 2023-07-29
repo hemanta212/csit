@@ -1,0 +1,37 @@
+#+TITLE: Linked List Implementation
+
+* Intro
+Maintain head and tail pointers in the first metadata header node
+So appending either to front or last is always constant time
+
+- Insertion is O(1)
+- Deletion is O(n)
+- Searching is O(n)
+
+  * Random insertion is stil O(n)
+
+* Single Linked List
+Each node only retains the pointer to the next node.
+#+begin_src artist
+  +---+   +---+   +---+   +---+
+  | H |-->| 1 |-->| 2 |-->| 3 |-->| T |
+  +---+   +---+   +---+   +---+
+#+end_src
+
+** Adding Element
+- Either curr head is ~null~ in which case the added element is both head and tail
+- Or, the new element is added to the last of list as new ~tail~ item
+
+  #+begin_src text
+Algorithm Add(valu)
+    pre: value is the value to add to list
+     n <- node (value)
+     if head = null
+         head <- n
+         tail <- n
+     else
+         tail.Next <- n
+         tail <- n
+     end if
+end Add
+  #+end_src

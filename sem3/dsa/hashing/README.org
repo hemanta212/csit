@@ -1,0 +1,117 @@
+#+TITLE: Hashing
+
+* Intro
+*Linear search*: Randomly ordered elements can be serched one by one, this takes time ~O(n)~
+
+*Binary search*: Ordered elements can be serched, this takes time ~O(log n)~
+
+However,  we want search method that takes a constant time, without needing to sort as well.
+
+*Hashing Technique*
+
+Suppose, we have keys of numbers and we want to arrange them.
+
+We allocate enough space with indices and place the keys at the indices equal to their value.
+
+Now, supose we were adding: 8, 3, 4, 6
+
+| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|   |   |   | 3 | 4 |   | 6 |   | 8 |
+
+Now to find if 4 exists, we directly go to 4 and check, if null it doesn't exist and viceversa.
+
+Now, with bit of technique, we can adjust the other types data similarly, for this we have to take a hash (an unique int identifier generated from its contents).
+
+*We have sacrificed space for gaining time.*
+
+*Improvement*
+
+We can allocate limited space at first, then we will have a hashing function that takes the available keys to adjust into those space.
+
+Now, supose we were adding: 8, 3, 4, 6, and we allocate 5 spaces, we will have a hash function that maps these keys into ~0-4~ index.
+
+*General Usage*
+
+Generally, we will allocate some large space like ~1k~ cells and then do the mapping, if we happend to encounter a hash collision, we will do second level hash or even third level hash if we again encounter a collision this is called probing.
+
+Another approach would be to turn the value at the cell to a chain/list containing multiple values that can be linear searched without affecting cost.
+
+But the chance of collision happening in same element is very rare.
+
+* Huffman coding
+*Example: BCCABBDDAECCBBAEDDCC*
+
+What we did above, was fixed sized coding. Huffman algorithm additionally specifies variable size coding.
+
+Requirements:
+- To sort the elements in increasing order of count/freq
+
+| char  | count/freq | code |
+| A     |               3 |      |
+| B     |               5 |      |
+| C     |               6 |      |
+| D     |               4 |      |
+| E     |               2 |      |
+| Total |              20 |      |
+
+Now, add them up in pairs to form a tree like this;
+ #+begin_src text
+         20
+        /   \
+       9     \
+      / \     \
+     5   \    11
+    / \   \   / \
+   2  3    4  5  6
+   E  A    D  B  C
+ #+end_src
+
+Mark left edges (20-9-5-2, 11-5) as 0 and right edges (20-11-6, 9-4, 5-3) as 1.
+
+To get the bit representation for a letter (suppose A), start a walk from the root to that letter (A).
++ A -> (20-9: 0, 9-5:0, 5-3:1 -> 001) : (Size: bits * freq : 3*3)
++ B -> (20-11: 1, 11-5:0 -> 10) : (2 * 5)
++ C -> (20-11: 1, 11-6:1 -> 11) : (6 * 2)
++ D -> (20-9: 0, 9-4:1 -> 01) : (4 * 2)
++ E -> (20-9-5-2: 000) : (2 * 3)
+
+| charectar | count/freq |    code |
+| A         |          3 |     001 |
+| B         |          5 |      10 |
+| C         |          6 |      11 |
+| D         |          4 |      01 |
+| E         |          2 |     000 |
+| Total     |         20 | 45 bits |
+
+Also, to send the table info:
++ Table info -> charectar 5 * 8 -> 40, code: 3*2+2*3 -> 12 : total 52 bits
++ Total: 52 + 45 --> 92 bits
+
+Calculating size from tree -> distance x freq
++ E: 2-5-9-20: 3*2
++  A: 3-5-9-20: 3*3
++ D: 4-9-20: 2 * 4
++ B: 5-11-20: 2*5
++ C: 6-11-20: 2*6
++ = 45 bits
+
+* Huffman decoding
+*Example:*
+| 001 | 11 | 11 | 01 | 10 | 11 | 11 | 001 | 01 | 10 | 001 | 11 | 11 | 02 |
+
+ #+begin_src text
+         20
+        /   \
+       9     \
+      / \     \
+     5   \    11
+    / \   \   / \
+   2  3    4  5  6
+   E  B    D  A  C
+ #+end_src
+Decode from root: 0(20-9), 0(9-5), 1(5-3) -> (3=B)
++ 1(20-11), 1(11-6) -> (6=C)
++ ...  so on,
+
+to produce this,
+| B | C | C | D | A | C | C | B | D | A | B | C | C | D |
